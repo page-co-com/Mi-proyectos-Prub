@@ -17,6 +17,7 @@
       background-color: #0d1b2a;
       overflow: hidden;
       position: relative;
+      user-select: none; /* Evita la selección de texto en todo el cuerpo */
     }
     
     .screen {
@@ -59,16 +60,16 @@
     }
 
     .start-screen .logo-image {
-        width: 80%; /* Ajusta el tamaño de la imagen del logo */
-        max-width: 400px; /* Tamaño máximo para que no se vea demasiado grande */
-        margin-bottom: 20px;
+        width: 80%;
+        max-width: 400px;
+        margin-bottom: 5px; /* Reducida la separación */
     }
 
     .start-screen p {
         color: #fff;
         font-size: 1.2em;
         margin-top: 5px;
-        margin-bottom: 20px;
+        margin-bottom: 10px; /* Reducida la separación */
         font-weight: bold;
         text-shadow: 0 0 5px rgba(0,0,0,0.5);
     }
@@ -77,13 +78,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 20px;
+      margin-bottom: 15px; /* Reducida la separación */
     }
 
     .input-container label {
       color: #fff;
       font-size: 1.5em;
-      margin-bottom: 10px;
+      margin-bottom: 5px; /* Reducida la separación */
       font-weight: bold;
     }
     
@@ -107,7 +108,7 @@
       border-radius: 15px;
       cursor: pointer;
       position: relative;
-      margin-top: 20px;
+      margin-top: 10px; /* Reducida la separación */
       transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
       box-shadow: 0 5px 15px rgba(0,0,0,0.5);
     }
@@ -280,7 +281,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-bottom: 5vh;
+        margin-bottom: 2vh; /* Reducida la separación */
     }
     
     .texto-centrado {
@@ -312,10 +313,10 @@
     .contenedor {
       display: grid;
       grid-template-columns: repeat(2, minmax(200px, 1fr));
-      gap: 40px 60px;
+      gap: 30px 50px; /* Reducida la separación */
       width: 80%;
       max-width: 1000px;
-      margin-top: 5vh;
+      margin-top: 3vh; /* Reducida la separación */
     }
     
     .boton {
@@ -602,7 +603,8 @@
     <button onclick="reiniciarJuego()">Volver a Jugar</button>
   </div>
   
-  <audio id="bg-music" src="https://b.sndcdn.com/f/a/QoHk-k41v70W_m.128.mp3?hash_token=1719541200_1719541200_1550133203" loop preload="auto"></audio>
+  <audio id="start-music" src="https://s3.amazonaws.com/chibcha-s3/sound/happy-uplifting-piano-5867.mp3" loop preload="auto"></audio>
+  <audio id="game-music" src="https://b.sndcdn.com/f/a/QoHk-k41v70W_m.128.mp3?hash_token=1719541200_1719541200_1550133203" loop preload="auto"></audio>
   <audio id="correct-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/correct.mp3" preload="auto"></audio>
   <audio id="wrong-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/beep-06.mp3" preload="auto"></audio>
   <audio id="click-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/click.mp3" preload="auto"></audio>
@@ -642,17 +644,25 @@
     const winnerScoreSpan = document.getElementById('winner-score');
     const winnerIconImg = document.getElementById('winner-icon');
     
-    const bgMusic = document.getElementById('bg-music');
+    const startMusic = document.getElementById('start-music');
+    const gameMusic = document.getElementById('game-music');
     const correctSound = document.getElementById('correct-sound');
     const wrongSound = document.getElementById('wrong-sound');
     const clickSound = document.getElementById('click-sound');
     const pauseSound = document.getElementById('pause-sound');
     const timeoutSound = document.getElementById('timeout-sound');
-
+    
     let respuestaCorrecta;
     let timer;
     let juegoPausado = false;
     let tiempoRestante = tiempoPorNivel;
+    let jugadorResponsable = 0; // 0 = ambos pueden responder, 1 = solo J1, 2 = solo J2
+
+    // Reproducir música de inicio al cargar la página
+    document.addEventListener('DOMContentLoaded', () => {
+        startMusic.volume = 0.5;
+        startMusic.play();
+    });
 
     startButton.addEventListener('click', iniciarJuego);
     pauseButton.addEventListener('click', () => { 
@@ -662,13 +672,15 @@
 
     document.querySelectorAll('.boton').forEach(boton => {
         boton.addEventListener('click', (event) => {
-            if (!juegoPausado) {
+            if (!juegoPausado && (jugadorResponsable === 0 || jugadorResponsable === 2)) {
+                playSound(clickSound);
                 manejarEleccion(boton.dataset.option, 2);
             }
         });
         boton.addEventListener('contextmenu', (event) => {
-            event.preventDefault(); // Evitar el menú contextual
-            if (!juegoPausado) {
+            event.preventDefault();
+            if (!juegoPausado && (jugadorResponsable === 0 || jugadorResponsable === 1)) {
+                playSound(clickSound);
                 manejarEleccion(boton.dataset.option, 1);
             }
         });
@@ -677,6 +689,22 @@
     function playSound(audioElement) {
         audioElement.currentTime = 0;
         audioElement.play();
+    }
+    
+    function fadeAudio(audio, targetVolume, duration) {
+        const startVolume = audio.volume;
+        const diff = targetVolume - startVolume;
+        const step = diff / (duration / 50);
+
+        function doFade() {
+            audio.volume += step;
+            if ((diff > 0 && audio.volume < targetVolume) || (diff < 0 && audio.volume > targetVolume)) {
+                setTimeout(doFade, 50);
+            } else {
+                audio.volume = targetVolume;
+            }
+        }
+        doFade();
     }
     
     function iniciarJuego() {
@@ -697,6 +725,11 @@
       startScreen.style.display = 'none';
       gameScreen.style.display = 'flex';
       
+      fadeAudio(startMusic, 0, 1000);
+      gameMusic.volume = 0;
+      gameMusic.play();
+      fadeAudio(gameMusic, 0.5, 2000);
+      
       reiniciarPartida(true);
     }
     
@@ -710,15 +743,13 @@
       problemasAnteriores = [];
       puntosJugador1Span.textContent = puntosJugador1;
       puntosJugador2Span.textContent = puntosJugador2;
+      jugadorResponsable = 0;
       
       pantallaFinal.style.display = 'none';
       gameScreen.style.display = 'flex';
 
       problemaTexto.classList.remove('oculto');
       document.querySelectorAll('.boton').forEach(boton => boton.classList.remove('oculto'));
-
-      bgMusic.volume = 0.5;
-      bgMusic.play();
       
       actualizarInterfaz();
       generarProblema();
@@ -803,7 +834,6 @@
       opciones.sort(() => Math.random() - 0.5);
 
       const idsOpciones = ['opcion-A', 'opcion-B', 'opcion-C', 'opcion-D'];
-      const letras = ['A', 'B', 'C', 'D'];
       for (let i = 0; i < opciones.length; i++) {
         document.getElementById(idsOpciones[i]).textContent = opciones[i];
       }
@@ -815,8 +845,6 @@
       const opcionSeleccionada = document.getElementById(`opcion-${opcionElegida}`);
       const valorSeleccionado = parseInt(opcionSeleccionada.textContent);
       
-      clearTimeout(timer);
-    
       if (valorSeleccionado === respuestaCorrecta) {
         playSound(correctSound);
         mostrarFeedback(true);
@@ -828,11 +856,21 @@
           puntosJugador2 += 10;
           puntosJugador2Span.textContent = puntosJugador2;
         }
+        clearTimeout(timer);
         setTimeout(avanzarNivel, 1000);
       } else {
         playSound(wrongSound);
         mostrarFeedback(false);
-        setTimeout(avanzarNivel, 1000);
+        if (jugador === 1) {
+            jugadorResponsable = 2; // Desactivar J1, dar oportunidad a J2
+        } else {
+            jugadorResponsable = 1; // Desactivar J2, dar oportunidad a J1
+        }
+
+        // Si el otro jugador ya falló o no ha respondido, avanzar el nivel
+        if (jugadorResponsable !== 0) {
+            setTimeout(avanzarNivel, 1000);
+        }
       }
     }
 
@@ -845,6 +883,7 @@
     
     function avanzarNivel(skipped = false) {
       clearTimeout(timer);
+      jugadorResponsable = 0; // Resetear para el siguiente nivel
 
       if (skipped) {
           playSound(timeoutSound);
@@ -872,7 +911,7 @@
     }
 
     function mostrarGanador() {
-      bgMusic.pause();
+      gameMusic.pause();
       let ganadorNombre;
       let ganadorPuntos;
       let ganadorIcono;
@@ -888,7 +927,7 @@
       } else {
         ganadorNombre = "Empate";
         ganadorPuntos = puntosJugador1;
-        ganadorIcono = "https://www.flaticon.com/svg/static/icons/svg/1054/1054522.svg"; // Icono de empate
+        ganadorIcono = "https://www.flaticon.com/svg/static/icons/svg/1054/1054522.svg";
       }
 
       winnerNameSpan.textContent = ganadorNombre;
@@ -896,118 +935,4 @@
       winnerIconImg.src = ganadorIcono;
 
       gameScreen.style.display = 'none';
-      pantallaFinal.style.display = 'flex';
-      playSound(correctSound);
-      createConfetti();
-    }
-    
-    function reiniciarJuego() {
-      // Ocultar todas las pantallas antes de mostrar la de inicio
-      gameScreen.style.display = 'none';
-      pantallaFinal.style.display = 'none';
-      startScreen.style.display = 'flex'; // Mostrar solo la pantalla de inicio
-      
-      player1NameInput.value = '';
-      player2NameInput.value = '';
-      clearTimeout(timer);
-      bgMusic.pause();
-      juegoPausado = false; 
-      pauseMenu.style.display = 'none';
-      dimmedBackground.style.display = 'none';
-      problemasAnteriores = []; // Resetear problemas para un nuevo juego
-      
-      // Asegurarse de que el botón de pausa vuelva a su estado inicial
-      pauseButton.textContent = '||'; 
-    }
-
-    function actualizarInterfaz() {
-      const dificultad = obtenerDificultad();
-      nivelBox.textContent = `Nivel: ${dificultad.charAt(0).toUpperCase() + dificultad.slice(1)}`;
-      
-      gameScreen.classList.remove('facil', 'medio', 'dificil');
-      if (dificultad === 'facil') {
-          gameScreen.classList.add('facil');
-      } else if (dificultad === 'medio') {
-          gameScreen.classList.add('medio');
-      } else {
-          gameScreen.classList.add('dificil');
-      }
-    }
-    
-    function obtenerDificultad() {
-      if (nivelActual <= 3) return 'facil';
-      if (nivelActual <= 6) return 'medio';
-      return 'dificil';
-    }
-    
-    function iniciarTiempo() {
-        if (juegoPausado) return;
-        timerText.textContent = tiempoRestante;
-
-        const updateTimer = () => {
-            if (juegoPausado) {
-                return;
-            }
-            tiempoRestante--;
-            timerText.textContent = tiempoRestante;
-            if (tiempoRestante <= 5) {
-                timerText.classList.add('danger');
-            } else {
-                timerText.classList.remove('danger');
-            }
-
-            if (tiempoRestante <= 0) {
-                playSound(timeoutSound);
-                avanzarNivel();
-            } else {
-                timer = setTimeout(updateTimer, 1000);
-            }
-        };
-
-        clearTimeout(timer);
-        timer = setTimeout(updateTimer, 1000);
-    }
-    
-    function togglePause() {
-        juegoPausado = !juegoPausado;
-        if (juegoPausado) {
-            pauseButton.textContent = '>'; // Símbolo de "play" cuando está pausado
-            dimmedBackground.style.display = 'block';
-            pauseMenu.style.display = 'flex';
-            bgMusic.volume = 0.2;
-            clearTimeout(timer); // Detener el temporizador
-        } else {
-            pauseButton.textContent = '||'; // Símbolo de "pausa" cuando se reanuda
-            dimmedBackground.style.display = 'none';
-            pauseMenu.style.display = 'none';
-            bgMusic.volume = 0.5;
-            iniciarTiempo(); // Reanudar el temporizador
-        }
-    }
-
-    function createConfetti() {
-        const confettiContainer = document.getElementById('confetti-container');
-        for (let i = 0; i < 50; i++) {
-            const confetti = document.createElement('div');
-            confetti.classList.add('confetti');
-            confetti.style.left = `${Math.random() * 100}vw`;
-            confetti.style.animationDelay = `${Math.random() * 2}s`;
-            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-            confetti.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
-            confettiContainer.appendChild(confetti);
-        }
-        setTimeout(() => {
-            confettiContainer.innerHTML = '';
-        }, 3000);
-    }
-
-    // Prevención del menú contextual en todo el documento para el clic derecho del jugador 1
-    document.addEventListener('contextmenu', (event) => {
-        event.preventDefault();
-    });
-
-    actualizarInterfaz();
-  </script>
-
-<script src="https://www.drv.tw/inc/wd.js?s=matematicaquiz903jornadatarde"></script></body>
-</html>
+      pantallaFinal
