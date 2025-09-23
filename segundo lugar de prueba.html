@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>MathQuiz-903</title>
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  background-image:url("https://i.ibb.co/mV7GpHL7/34fa874255dde80-file-00000000fb1061f9b2727399d83e081c-wm.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  font-family: sans-serif;
+}
+
+/* Ocultar pantallas */
+.pantalla {
+  display: none;
+}
+.activa {
+  display: block;
+}
+
+/* --- ESTILOS MENÚ --- */
+.titulo {
+  width: 300px;
+  height: 300px;
+  position: relative;
+  top: 5px;
+  left: 350px;
+}
+
+.boton-jugarsolo,
+.boton-jugarduo,
+.boton-buscarpartida,
+.boton-crearpartida {
+  width: 200px;
+  height: 100px;
+  position: relative;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.boton-jugarsolo { top: 35px; right: 25px; }
+.boton-jugarduo { top: 35px; left: 10px; }
+.boton-buscarpartida { top: 130px; right: 440px; }
+.boton-crearpartida { top: 30px; left: 520px; }
+
+.boton-jugarsolo:hover,
+.boton-jugarduo:hover,
+.boton-buscarpartida:hover,
+.boton-crearpartida:hover {
+  transform: scale(1.1);
+}
+
+/* --- ESTILOS JUEGO DUO (Eliminada la pantalla intermedia) --- */
+/* Esta sección ahora solo contiene estilos base si fueran necesarios,
+   pero la pantalla intermedia con "Juego Duo" y "Volver al inicio" ha sido eliminada. */
+
+
+/* --- ESTILOS BOTÓN VOLVER AL MENÚ --- */
+/* Este estilo es para el botón de volver en la pantalla de nombres del juego Duo */
+.back-to-menu-button {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 190px; /* Incrementado para hacerlo más largo */
+    height: 150px; /* Incrementado para hacerlo más grande */
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 1000;
+}
+.back-to-menu-button img {
+    width: 100%;
+    height: 100%;
+}
+.back-to-menu-button:hover {
+    transform: scale(1.1);
+}
+
+
+/* Resto de estilos del juego */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #0d1b2a;
+      overflow: hidden;
+      position: relative;
+      user-select: none;
+    }
+    
+    .screen {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      transition: opacity 0.5s ease;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    /* Estilos para la pantalla de inicio (ingreso de nombres) */
+    .start-screen {
+      background-image: url('https://i.ibb.co/fG1MgWPX/file-000000000ed0622f844ca6edd1af35d7.png');
+      z-index: 200;
+    }
+
+    .start-screen-content {
+        background-color: rgba(0, 0, 0, 0.4);
+        padding: 40px;
+        border-radius: 20px;
+        backdrop-filter: blur(5px);
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .start-screen h2 {
+      color: #fff;
+      font-size: 3em;
+      margin-bottom: 5px;
+      font-weight: 900;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .start-screen .logo-image {
+        display: none;
+    }
+
+    .start-screen p {
+        color: #fff;
+        font-size: 1.2em;
+        margin-top: 5px;
+        margin-bottom: 10px;
+        font-weight: bold;
+        text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+    
+    .input-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .input-container label {
+      color: #fff;
+      font-size: 1.5em;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    .input-container input {
+      width: 250px;
+      padding: 10px 15px;
+      font-size: 1.2em;
+      border: 3px solid #fff;
+      border-radius: 12px;
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      text-align: center;
+      font-weight: bold;
+    }
+    
+    .start-button {
+      background-color: #007bff;
+      width: 200px;
+      height: 70px;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      position: relative;
+      margin-top: 10px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    }
+
+    .start-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+        background-color: #0056b3;
+    }
+
+    .start-button::after {
+        content: "Iniciar Partida";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: white;
+        font-size: 1.5em;
+        font-weight: 900;
+        text-shadow: 0 0 5px rgba(0,0,0,0.8);
+    }
+
+    /* Estilos del juego principal */
+    .game-screen {
+      display: none;
+      z-index: 100;
+      transition: background-color 1s ease;
+    }
+
+    .game-screen.facil { background-color: #0073ff; }
+    .game-screen.medio { background-color: #ff8c00; }
+    .game-screen.dificil { background-color: #dc3545; }
+
+    /* Efecto de oscurecimiento */
+    .dimmed-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 400;
+      display: none;
+      transition: opacity 0.5s ease;
+    }
+    
+    /* Estilo base del botón de pausa */
+    .pause-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      z-index: 500;
+    }
+
+    .pause-button:hover { 
+      background: #333;
+      transform: scale(1.05);
+    }
+
+    /* Ícono Pausa (dos barras) */
+    .pause-icon {
+      display: flex;
+      gap: 8px;
+    }
+    .pause-icon span {
+      display: block;
+      width: 10px;
+      height: 30px;
+      background: white;
+      border-radius: 3px;
+    }
+    
+    /* Ícono Pausado (cuadrado) */
+    .paused-icon {
+        width: 28px;
+        height: 28px;
+        background: white;
+        border-radius: 4px;
+        display: none; /* Oculto por defecto */
+    }
+
+    /* Cuando el botón tiene la clase 'paused', oculta el ícono de pausa y muestra el de pausado */
+    .pause-button.paused .pause-icon {
+        display: none;
+    }
+    .pause-button.paused .paused-icon {
+        display: block;
+    }
+
+
+    /* Menú de Pausa */
+    .pause-menu {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: rgba(0, 0, 0, 0.7);
+      padding: 30px;
+      border-radius: 15px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      z-index: 600;
+    }
+    
+    .pause-menu h3 {
+      color: #fff;
+      font-size: 2em;
+      margin-bottom: 20px;
+      text-shadow: 0 0 5px rgba(255, 255, 255, 0.7);
+    }
+    
+    .pause-menu button {
+      width: 250px;
+      padding: 15px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 1.2em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.2s;
+    }
+
+    .pause-menu .resume-btn { background-color: #28a745; color: white; }
+    .pause-menu .restart-btn { background-color: #ffc107; color: black; }
+    .pause-menu .skip-btn { background-color: #17a2b8; color: white; }
+    .pause-menu .back-to-names-btn { background-color: #6c757d; color: white; }
+
+
+    .pause-menu button:hover { transform: translateY(-3px); }
+    
+    /* Estilos del encabezado del juego */
+    .mathquiz-header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      padding: 15px 0;
+      background: transparent;
+      z-index: 1000;
+    }
+    
+    .mathquiz-header h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 8px rgba(0,0,0,0.5);
+    }
+    
+    .nivel-box {
+      display: inline-block;
+      margin-top: 10px;
+      color: #fff;
+      font-weight: 900;
+      padding: 12px 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      transition: background-color 0.5s ease;
+    }
+    
+    .nivel-facil { background-color: #28a745; }
+    .nivel-medio { background-color: #ff8c00; }
+    .nivel-dificil { background-color: #dc3545; }
+
+    /* Jugadores e íconos */
+    .player-info {
+        position: absolute;
+        top: 20px;
+        display: flex;
+        align-items: center;
+        color: white;
+        font-size: 1.8em;
+        font-weight: 900;
+        text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+
+    .player-1-info { left: 20px; }
+    .player-2-info { right: 20px; }
+
+    .player-info img {
+        width: 150px; 
+        height: 120px;
+        margin-right: 15px;
+        box-shadow: none;
+        border: none;
+    }
+
+    .player-2-info img {
+        margin-right: 0;
+        margin-left: 15px;
+    }
+
+    /* Estilos del texto del problema y temporizador */
+    .problem-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      top: 15vh; /* Ajuste para bajar el texto del problema un poco */
+    }
+    
+    .texto-centrado {
+      font-size: 110px;
+      font-weight: 990;
+      color: white;
+      text-shadow: 0 0 15px rgba(0,0,0,0.9);
+      transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      margin-bottom: 20px;
+    }
+    
+    .timer-text {
+      font-size: 4em;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+      transition: color 0.5s ease;
+      margin-top: -20px;
+    }
+
+    .timer-text.danger {
+        color: #dc3545;
+    }
+    
+    .texto-centrado.oculto {
+      transform: scale(0.8);
+      opacity: 0;
+    }
+
+    /* Estilos de los botones flotantes */
+    .contenedor {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(200px, 1fr));
+      gap: 30px 50px;
+      width: 80%;
+      max-width: 1000px;
+      margin-top: 15vh; /* Ajuste para subir las respuestas un poco */
+      padding-bottom: 10vh;
+    }
+    
+    .boton {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      background: white;
+      border-radius: 14px;
+      padding: 18px 28px 18px 65px;
+      font-size: 24px;
+      font-weight: 900;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      animation: flotar 6s ease-in-out infinite;
+      user-select: none;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      cursor: pointer;
+      transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    }
+    
+    .boton.oculto {
+      transform: translateY(20px) scale(0.8) rotate(10deg);
+      opacity: 0;
+    }
+    
+    .letra {
+      position: absolute;
+      left: -30px;
+      background: red;
+      color: white;
+      border: 3px solid white;
+      border-radius: 50%;
+      width: 75px;
+      height: 75px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    
+    .texto {
+      color: black;
+      margin-left: 12px;
+      font-weight: 900;
+      font-size: 30px;
+    }
+    
+    @keyframes flotar {
+      0%   { transform: translateY(0) rotate(0deg); }
+      25%  { transform: translateY(-8px) rotate(-1deg); }
+      50%  { transform: translateY(-15px) rotate(1deg); }
+      75%  { transform: translateY(-8px) rotate(-1deg); }
+      100% { transform: translateY(0) rotate(0deg); }
+    }
+    
+    .boton:nth-child(1) { animation-delay: 0s; }
+    .boton:nth-child(2) { animation-delay: 1s; }
+    .boton:nth-child(3) { animation-delay: 2s; }
+    .boton:nth-child(4) { animation-delay: 3s; }
+
+    /* Estilos de la pantalla final */
+    .pantalla-final {
+      background-color: rgba(0, 0, 0, 0.8);
+      display: none;
+      z-index: 2000;
+    }
+    
+    .pantalla-final h2 {
+      color: #00ff00;
+      font-size: 70px;
+      font-weight: 990;
+      text-shadow: 0 0 20px #00ff00;
+      margin-bottom: 40px;
+    }
+
+    .winner-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .winner-info img {
+        width: 100px;
+        height: 100px;
+        margin: 0 20px;
+        border: 5px solid gold;
+        box-shadow: 0 0 15px gold;
+    }
+
+    .winner-info .name {
+        font-size: 3em;
+        font-weight: 900;
+        color: white;
+    }
+
+    .winner-info .score {
+        font-size: 2.5em;
+        color: gold;
+        font-weight: bold;
+    }
+
+    .pantalla-final button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 18px 35px;
+      font-size: 28px;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+    }
+    
+    .pantalla-final button:hover {
+      background-color: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    /* Estilos del pie de página */
+    .footer-info {
+      position: absolute;
+      bottom: 10px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 14px;
+      font-weight: normal;
+      z-index: 1000;
+      line-height: 1.5;
+      text-shadow: 0 0 5px rgba(0,0,0,0.5);
+    }
+    
+    .footer-info span {
+      display: block;
+    }
+
+    /* Nuevas clases para los efectos de pantalla */
+    .screen-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transition: background-color 0.5s ease-in-out, opacity 1s ease-in-out;
+    }
+    
+    .screen-overlay.visible {
+      opacity: 1;
+    }
+    
+    .screen-overlay.incorrecto {
+      background-color: rgba(255, 0, 0, 0.6);
+    }
+
+    /* Estilos para el confeti */
+    #confetti-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        overflow: hidden;
+        z-index: 9999;
+    }
+
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: #f00;
+        animation: fall 3s ease-out forwards;
+        opacity: 0;
+    }
+
+    @keyframes fall {
+        0% {
+            transform: translateY(-100px) rotateZ(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(100vh) rotateZ(720deg);
+            opacity: 0;
+        }
+    }
+    
+    /* Nuevos estilos para el overlay de instrucciones (removido) */
+</style>
+</head>
+<body>
+
+<div id="pantalla-inicio" class="pantalla activa">
+  <img src="https://i.ibb.co/p67KxGdP/3b52ca2ceb93989-file-000000000bb061f9be408f54c6ae9e20-wm.png" class="titulo">
+
+  <img src="https://i.ibb.co/hFshhxvz/1756863435789.png" class="boton-jugarsolo">
+  <img src="https://i.ibb.co/wNbBgHW4/1756863483248.png" class="boton-jugarduo" onclick="mostrarJuegoDuoDirecto()">
+  <img src="https://i.ibb.co/rK0j3khc/1756863453185.png" class="boton-buscarpartida">
+  <img src="https://i.ibb.co/n8kkDWsd/1756863506377.png" class="boton-crearpartida">
+</div>
+
+<div id="pantalla-juego-duo" class="pantalla">
+    <div class="screen start-screen" id="start-screen">
+        <div class="back-to-menu-button" onclick="volverAlMenu()">
+            <img src="https://i.ibb.co/6cR0gtbQ/1756936433519.png" alt="Volver al menú principal">
+        </div>
+        <div class="start-screen-content">
+            <h2>MathQuiz</h2>
+            <p>Juego por 903JT</p>
+            <div class="input-container">
+                <label for="player1-name">Nombre del Jugador 1</label>
+                <input type="text" id="player1-name" placeholder="Ej. Ana" maxlength="10">
+            </div>
+            <div class="input-container">
+                <label for="player2-name">Nombre del Jugador 2</label>
+                <input type="text" id="player2-name" placeholder="Ej. Luis" maxlength="10">
+            </div>
+            <button class="start-button" id="start-button"></button>
+        </div>
+    </div>
+
+    <div class="screen game-screen" id="game-screen">
+        <div class="dimmed-background" id="dimmed-background"></div>
+        <div class="screen-overlay" id="screen-overlay"></div>
+        <button class="pause-button" id="pause-button" onclick="togglePause()">
+            <div class="pause-icon">
+                <span></span>
+                <span></span>
+            </div>
+            <div class="paused-icon"></div>
+        </button>
+        <div class="pause-menu" id="pause-menu">
+            <h3>Juego Pausado</h3>
+            <button class="resume-btn" onclick="togglePause()">Despausar</button>
+            <button class="restart-btn" onclick="reiniciarPartida()">Reiniciar Partida</button>
+            <button class="skip-btn" onclick="avanzarNivel(true)">Pasar Problema</button>
+            <button class="back-to-names-btn" onclick="volverAPantallaNombres()">Salida</button>
+        </div>
+        
+        <div class="player-info player-1-info">
+            <img src="https://i.ibb.co/n8DMgr0x/1756936103333.png" alt="Icono Jugador 1">
+            <div>
+                <span id="player1-name-display">Jugador 1</span><br>
+                Puntos: <span id="puntos-jugador-1">0</span>
+            </div>
+        </div>
+        
+        <div class="player-info player-2-info">
+            <div>
+                <span id="player2-name-display">Jugador 2</span><br>
+                Puntos: <span id="puntos-jugador-2">0</span>
+            </div>
+            <img src="https://i.ibb.co/YT10gzmf/1756936120200.png" alt="Icono Jugador 2">
+        </div>
+
+        <div class="mathquiz-header">
+            <h1>MathQuiz</h1>
+            <div class="nivel-box" id="nivel-box">Nivel: Fácil</div>
+        </div>
+        
+        <div class="problem-container">
+            <p class="texto-centrado" id="problema-texto">10 + 5</p>
+            <p class="timer-text" id="timer-text">20</p>
+        </div>
+        
+        <div class="contenedor" id="opciones-contenedor">
+            <div class="boton" data-option="A">
+                <div class="letra">A</div>
+                <div class="texto" id="opcion-A">15</div>
+            </div>
+            <div class="boton" data-option="B">
+                <div class="letra">B</div>
+                <div class="texto" id="opcion-B">12</div>
+            </div>
+            <div class="boton" data-option="C">
+                <div class="letra">C</div>
+                <div class="texto" id="opcion-C">20</div>
+            </div>
+            <div class="boton" data-option="D">
+                <div class="letra">D</div>
+                <div class="texto" id="opcion-D">8</div>
+            </div>
+        </div>
+        
+        <div class="footer-info">
+            <span>Un juego por 903 JT &copy;</span>
+            <span>Programado por JulianR</span>
+        </div>
+    </div>
+    
+    <div class="screen pantalla-final" id="pantalla-final">
+        <h2>¡Juego Terminado!</h2>
+        <div class="winner-info" id="winner-info">
+            <span class="name" id="winner-name"></span>
+            <img id="winner-icon" src="" alt="Ganador">
+            <span class="score">Puntos: <span id="winner-score"></span></span>
+        </div>
+        <button onclick="reiniciarJuego()">Volver a Jugar</button>
+    </div>
+</div> <audio id="start-music" src="https://s3.amazonaws.com/chibcha-s3/sound/happy-uplifting-piano-5867.mp3" loop preload="auto"></audio>
+  <audio id="game-music" src="https://b.sndcdn.com/f/a/QoHk-k41v70W_m.128.mp3?hash_token=1719541200_1719541200_1550133203" loop preload="auto"></audio>
+  <audio id="correct-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/correct.mp3" preload="auto"></audio>
+  <audio id="wrong-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/beep-06.mp3" preload="auto"></audio>
+  <audio id="click-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/click.mp3" preload="auto"></audio>
+  <audio id="pause-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/pause-on.mp3" preload="auto"></audio>
+  <audio id="timeout-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/game-over.mp3" preload="auto"></audio>
+  <audio id="win-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/win-bell.mp3" preload="auto"></audio>
+  <audio id="tie-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/tie.mp3" preload="auto"></audio>
+  <audio id="countdown-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/countdown-sound.mp3" preload="auto"></audio>
+
+  <div id="confetti-container"></div>
+
+  <script>
+    let nivelActual = 1;
+    let puntosJugador1 = 0;
+    let puntosJugador2 = 0;
+    let nombreJugador1 = 'Jugador 1';
+    let nombreJugador2 = 'Jugador 2';
+    let problemasAnteriores = [];
+    const totalNiveles = 10;
+    const tiempoPorNivel = 20;
+
+    const pantallaInicioMenu = document.getElementById('pantalla-inicio'); // Nuevo: referencia al menú principal
+    const pantallaJuegoDuo = document.getElementById('pantalla-juego-duo'); // Nuevo: Contenedor para todo el juego dúo
+    const startScreen = document.getElementById('start-screen'); // Pantalla de ingreso de nombres
+    const gameScreen = document.getElementById('game-screen');     // Pantalla de juego activo
+    const pantallaFinal = document.getElementById('pantalla-final');
+    const startButton = document.getElementById('start-button');
+    const player1NameInput = document.getElementById('player1-name');
+    const player2NameInput = document.getElementById('player2-name');
+    const player1NameDisplay = document.getElementById('player1-name-display');
+    const player2NameDisplay = document.getElementById('player2-name-display');
+    const puntosJugador1Span = document.getElementById('puntos-jugador-1');
+    const puntosJugador2Span = document.getElementById('puntos-jugador-2');
+    const problemaTexto = document.getElementById('problema-texto');
+    const timerText = document.getElementById('timer-text');
+    const nivelBox = document.getElementById('nivel-box');
+    const opcionesContenedor = document.getElementById('opciones-contenedor');
+    const pauseButton = document.getElementById('pause-button');
+    const pauseMenu = document.getElementById('pause-menu');
+    const dimmedBackground = document.getElementById('dimmed-background');
+    const winnerNameSpan = document.getElementById('winner-name');
+    const winnerScoreSpan = document.getElementById('winner-score');
+    const winnerIconImg = document.getElementById('winner-icon');
+    const screenOverlay = document.getElementById('screen-overlay');
+    
+    const startMusic = document.getElementById('start-music');
+    const gameMusic = document.getElementById('game-music');
+    const correctSound = document.getElementById('correct-sound');
+    const wrongSound = document.getElementById('wrong-sound');
+    const clickSound = document.getElementById('click-sound');
+    const pauseSound = document.getElementById('pause-sound');
+    const timeoutSound = document.getElementById('timeout-sound');
+    const winSound = document.getElementById('win-sound');
+    const tieSound = document.getElementById('tie-sound');
+    const countdownSound = document.getElementById('countdown-sound');
+    
+    let respuestaCorrecta;
+    let timer;
+    let juegoPausado = false;
+    let tiempoRestante = tiempoPorNivel;
+    let turnoActual = 1; // 1 para Jugador 1, 2 para Jugador 2
+    let jugadorHabilitado = 0; // 0 = ambos, 1 = solo J1, 2 = solo J2
+    let haRespondido = false; // Variable para controlar el spam de clics
+
+    document.addEventListener('DOMContentLoaded', () => {
+        startMusic.volume = 0.5;
+        startMusic.play();
+    });
+
+    startButton.addEventListener('click', iniciarJuego);
+    
+    document.querySelectorAll('.boton').forEach(boton => {
+        boton.addEventListener('click', (event) => {
+            if (!juegoPausado && !haRespondido && (jugadorHabilitado === 0 || jugadorHabilitado === 1)) {
+                haRespondido = true;
+                playSound(clickSound);
+                manejarEleccion(boton.dataset.option, 1);
+            }
+        });
+        boton.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+            if (!juegoPausado && !haRespondido && (jugadorHabilitado === 0 || jugadorHabilitado === 2)) {
+                haRespondido = true;
+                playSound(clickSound);
+                manejarEleccion(boton.dataset.option, 2);
+            }
+        });
+    });
+
+    function playSound(audioElement) {
+        audioElement.currentTime = 0;
+        audioElement.play();
+    }
+    
+    function fadeAudio(audio, targetVolume, duration) {
+        const startVolume = audio.volume;
+        const diff = targetVolume - startVolume;
+        const step = diff / (duration / 50);
+
+        function doFade() {
+            audio.volume += step;
+            if ((diff > 0 && audio.volume < targetVolume) || (diff < 0 && audio.volume > targetVolume)) {
+                setTimeout(doFade, 50);
+            } else {
+                audio.volume = targetVolume;
+            }
+        }
+        doFade();
+    }
+    
+    // Función para mostrar directamente la pantalla de ingreso de nombres
+    function mostrarJuegoDuoDirecto() {
+        pantallaInicioMenu.classList.remove("activa");
+        pantallaJuegoDuo.classList.add("activa"); // Activar el contenedor principal del juego duo
+        startScreen.style.display = 'flex'; // Asegurarse de que la pantalla de nombres esté visible
+        gameScreen.style.display = 'none'; // Asegurarse de que la pantalla del juego esté oculta
+        pantallaFinal.style.display = 'none'; // Asegurarse de que la pantalla final esté oculta
+    }
+
+    function iniciarJuego() {
+      const nombre1 = player1NameInput.value.trim();
+      const nombre2 = player2NameInput.value.trim();
+      
+      if (nombre1 === '' || nombre2 === '') {
+        alert('Por favor, ingresa los nombres de ambos jugadores.');
+        return;
+      }
+      
+      nombreJugador1 = nombre1;
+      nombreJugador2 = nombre2;
+      
+      player1NameDisplay.textContent = nombreJugador1;
+      player2NameDisplay.textContent = nombreJugador2;
+      
+      startScreen.style.display = 'none';
+      gameScreen.style.display = 'flex';
+      
+      fadeAudio(startMusic, 0, 1000);
+      gameMusic.volume = 0;
+      gameMusic.play();
+      fadeAudio(gameMusic, 0.5, 2000);
+      
+      reiniciarPartida();
+    }
+    
+    function volverAlMenu() {
+        if (juegoPausado) {
+            togglePause();
+        }
+        // Ocultar todas las pantallas del juego dúo
+        pantallaJuegoDuo.classList.remove("activa");
+        startScreen.style.display = 'none';
+        gameScreen.style.display = 'none';
+        pantallaFinal.style.display = 'none';
+
+        // Mostrar la pantalla de inicio del menú principal
+        pantallaInicioMenu.classList.add("activa");
+        
+        player1NameInput.value = '';
+        player2NameInput.value = '';
+        clearTimeout(timer);
+        gameMusic.pause();
+        startMusic.currentTime = 0;
+        startMusic.volume = 0.5;
+        startMusic.play();
+        juegoPausado = false; 
+        pauseMenu.style.display = 'none';
+        dimmedBackground.style.display = 'none';
+        problemasAnteriores = [];
+    }
+
+    function volverAPantallaNombres() {
+        if (juegoPausado) {
+            togglePause();
+        }
+        gameScreen.style.display = 'none';
+        pantallaFinal.style.display = 'none'; // Asegurarse de ocultar la pantalla final también
+        startScreen.style.display = 'flex'; // Mostrar la pantalla de ingreso de nombres
+        
+        clearTimeout(timer);
+        gameMusic.pause();
+        startMusic.currentTime = 0;
+        startMusic.volume = 0.5;
+        startMusic.play();
+        juegoPausado = false; 
+        pauseMenu.style.display = 'none';
+        dimmedBackground.style.display = 'none';
+        problemasAnteriores = [];
+    }
+    
+    function reiniciarPartida() {
+      if (juegoPausado) {
+        togglePause();
+      }
+      nivelActual = 1;
+      puntosJugador1 = 0;
+      puntosJugador2 = 0;
+      problemasAnteriores = [];
+      puntosJugador1Span.textContent = puntosJugador1;
+      puntosJugador2Span.textContent = puntosJugador2;
+      jugadorHabilitado = 0;
+      
+      pantallaFinal.style.display = 'none';
+      gameScreen.style.display = 'flex';
+
+      problemaTexto.classList.remove('oculto');
+      document.querySelectorAll('.boton').forEach(boton => boton.classList.remove('oculto'));
+      
+      actualizarInterfaz();
+      generarProblema();
+      iniciarTiempo();
+    }
+    
+    function generarProblema() {
+      haRespondido = false; // Resetear el estado de respuesta
+      const dificultad = obtenerDificultad();
+      let num1, num2, operacion;
+      let problema, resultado;
+      let problemaExistente = true;
+      let intentos = 0;
+      
+      while (problemaExistente && intentos < 100) {
+        const operacionesFaciles = ['+', '-'];
+        const operacionesMedias = ['+', '-', '×'];
+        const operacionesDificiles = ['+', '-', '×', '÷'];
+      
+        if (dificultad === 'facil') {
+          num1 = Math.floor(Math.random() * 10) + 1;
+          num2 = Math.floor(Math.random() * 10) + 1;
+          operacion = operacionesFaciles[Math.floor(Math.random() * operacionesFaciles.length)];
+        } else if (dificultad === 'medio') {
+          num1 = Math.floor(Math.random() * 20) + 5;
+          num2 = Math.floor(Math.random() * 10) + 1;
+          operacion = operacionesMedias[Math.floor(Math.random() * operacionesMedias.length)];
+        } else {
+          num1 = Math.floor(Math.random() * 30) + 10;
+          num2 = Math.floor(Math.random() * 10) + 2;
+          operacion = operacionesDificiles[Math.floor(Math.random() * operacionesDificiles.length)];
+        }
+        
+        switch (operacion) {
+          case '+':
+            resultado = num1 + num2;
+            problema = `${num1} + ${num2}`;
+            break;
+          case '-':
+            if (num1 < num2) { [num1, num2] = [num2, num1]; }
+            resultado = num1 - num2;
+            problema = `${num1} - ${num2}`;
+            break;
+          case '×':
+            resultado = num1 * num2;
+            problema = `${num1} × ${num2}`;
+            break;
+          case '÷':
+            const temp = Math.floor(Math.random() * 10) + 2;
+            num1 = num2 * temp;
+            resultado = temp;
+            problema = `${num1} ÷ ${num2}`;
+            break;
+        }
+        
+        if (!problemasAnteriores.includes(problema)) {
+          problemaExistente = false;
+          problemasAnteriores.push(problema);
+        }
+        intentos++;
+      }
+      
+      problemaTexto.textContent = problema;
+      respuestaCorrecta = resultado;
+      generarOpciones(resultado);
+    }
+
+    function generarOpciones(respuestaCorrecta) {
+      const opciones = [respuestaCorrecta];
+      while (opciones.length < 4) {
+        let opcionFalsa;
+        const diff = Math.floor(Math.random() * 5) + 1;
+        if (Math.random() < 0.5) {
+            opcionFalsa = respuestaCorrecta + diff;
+        } else {
+            opcionFalsa = respuestaCorrecta - diff;
+        }
+        if (opcionFalsa > 0 && !opciones.includes(opcionFalsa)) {
+          opciones.push(opcionFalsa);
+        }
+      }
+
+      opciones.sort(() => Math.random() - 0.5);
+
+      const idsOpciones = ['opcion-A', 'opcion-B', 'opcion-C', 'opcion-D'];
+      for (let i = 0; i < opciones.length; i++) {
+        document.getElementById(idsOpciones[i]).textContent = opciones[i];
+      }
+    }
+
+    function manejarEleccion(opcionElegida, jugador) {
+      if (juegoPausado || haRespondido) return;
+      
+      haRespondido = true;
+      const opcionSeleccionada = document.getElementById(`opcion-${opcionElegida}`);
+      const valorSeleccionado = parseInt(opcionSeleccionada.textContent);
+      
+      if (valorSeleccionado === respuestaCorrecta) {
+        playSound(correctSound);
+        mostrarFeedback(true);
+        createConfetti();
+        if (jugador === 1) {
+          puntosJugador1 += 10;
+          puntosJugador1Span.textContent = puntosJugador1;
+        } else {
+          puntosJugador2 += 10;
+          puntosJugador2Span.textContent = puntosJugador2;
+        }
+        clearTimeout(timer);
+        setTimeout(avanzarNivel, 1000);
+      } else {
+        playSound(wrongSound);
+        mostrarFeedback(false);
+        if (jugadorHabilitado === 0) {
+            jugadorHabilitado = (jugador === 1) ? 2 : 1;
+        } else {
+            clearTimeout(timer);
+            setTimeout(avanzarNivel, 1000);
+        }
+      }
+    }
+
+    function mostrarFeedback(esCorrecto) {
+        if (!esCorrecto) {
+            screenOverlay.classList.add('incorrecto', 'visible');
+            setTimeout(() => {
+                screenOverlay.classList.remove('visible');
+                setTimeout(() => {
+                    screenOverlay.classList.remove('incorrecto');
+                }, 500);
+            }, 2000);
+        }
+    }
+    
+    function avanzarNivel(skipped = false) {
+      clearTimeout(timer);
+      jugadorHabilitado = 0; // Se restablece el turno para el siguiente problema
+
+      if (skipped) {
+          playSound(timeoutSound);
+      }
+      
+      if (nivelActual >= totalNiveles) {
+        mostrarGanador();
+        return;
+      }
+
+      nivelActual++;
+      tiempoRestante = tiempoPorNivel;
+      
+      problemaTexto.classList.add('oculto');
+      document.querySelectorAll('.boton').forEach(boton => boton.classList.add('oculto'));
+      
+      setTimeout(() => {
+        actualizarInterfaz();
+        generarProblema();
+        iniciarTiempo();
+
+        problemaTexto.classList.remove('oculto');
+        document.querySelectorAll('.boton').forEach(boton => boton.classList.remove('oculto'));
+      }, 1000);
+    }
+
+    function mostrarGanador() {
+      gameMusic.pause();
+      let ganadorNombre;
+      let ganadorPuntos;
+      let ganadorIcono;
+
+      if (puntosJugador1 > puntosJugador2) {
+        ganadorNombre = nombreJugador1;
+        ganadorPuntos = puntosJugador1;
+        ganadorIcono = "https://i.ibb.co/n8DMgr0x/1756936103333.png";
+        playSound(winSound);
+        createConfetti();
+      } else if (puntosJugador2 > puntosJugador1) {
+        ganadorNombre = nombreJugador2;
+        ganadorPuntos = puntosJugador2;
+        ganadorIcono = "https://i.ibb.co/YT10gzmf/1756936120200.png";
+        playSound(winSound);
+        createConfetti();
+      } else {
+        ganadorNombre = "Empate";
+        ganadorPuntos = puntosJugador1;
+        ganadorIcono = "https://www.flaticon.com/svg/static/icons/svg/1054/1054522.svg";
+        playSound(tieSound);
+      }
+
+      winnerNameSpan.textContent = ganadorNombre;
+      winnerScoreSpan.textContent = ganadorPuntos;
+      winnerIconImg.src = ganadorIcono;
+
+      gameScreen.style.display = 'none';
+      pantallaFinal.style.display = 'flex';
+      
+    }
+    
+    function reiniciarJuego() {
+      gameScreen.style.display = 'none';
+      pantallaFinal.style.display = 'none';
+      startScreen.style.display = 'flex'; // Volver a la pantalla de nombres para "Jugar de Nuevo"
+      
+      player1NameInput.value = '';
+      player2NameInput.value = '';
+      clearTimeout(timer);
+      gameMusic.pause();
+      startMusic.currentTime = 0;
+      startMusic.volume = 0.5;
+      startMusic.play();
+      juegoPausado = false; 
+      pauseMenu.style.display = 'none';
+      dimmedBackground.style.display = 'none';
+      problemasAnteriores = [];
+    }
+
+    function actualizarInterfaz() {
+      const dificultad = obtenerDificultad();
+      nivelBox.textContent = `Nivel: ${dificultad.charAt(0).toUpperCase() + dificultad.slice(1)}`;
+      
+      gameScreen.classList.remove('facil', 'medio', 'dificil');
+      if (dificultad === 'facil') {
+          gameScreen.classList.add('facil');
+      } else if (dificultad === 'medio') {
+          gameScreen.classList.add('medio');
+      } else {
+          gameScreen.classList.add('dificil');
+      }
+    }
+    
+    function obtenerDificultad() {
+      if (nivelActual <= 3) return 'facil';
+      if (nivelActual <= 6) return 'medio';
+      return 'dificil';
+    }
+    
+    function iniciarTiempo() {
+        if (juegoPausado) return;
+        timerText.textContent = tiempoRestante;
+
+        const updateTimer = () => {
+            if (juegoPausado) {
+                return;
+            }
+            tiempoRestante--;
+            timerText.textContent = tiempoRestante;
+            if (tiempoRestante <= 5 && tiempoRestante > 0) {
+                timerText.classList.add('danger');
+                playSound(countdownSound);
+            } else {
+                timerText.classList.remove('danger');
+            }
+
+            if (tiempoRestante <= 0) {
+                playSound(timeoutSound);
+                avanzarNivel();
+            } else {
+                timer = setTimeout(updateTimer, 1000);
+            }
+        };
+
+        clearTimeout(timer);
+        timer = setTimeout(updateTimer, 1000);
+    }
+    
+    function togglePause() {
+        juegoPausado = !juegoPausado;
+        if (juegoPausado) {
+            dimmedBackground.style.display = 'block';
+            pauseMenu.style.display = 'flex';
+            fadeAudio(gameMusic, 0.1, 500);
+            clearTimeout(timer);
+            pauseButton.classList.add('paused');
+        } else {
+            dimmedBackground.style.display = 'none';
+            pauseMenu.style.display = 'none';
+            fadeAudio(gameMusic, 0.5, 500);
+            iniciarTiempo();
+            pauseButton.classList.remove('paused');
+        }
+    }
+
+    function createConfetti() {
+        const confettiContainer = document.getElementById('confetti-container');
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.animationDelay = `${Math.random() * 2}s`;
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            confetti.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
+            confettiContainer.appendChild(confetti);
+        }
+        setTimeout(() => {
+            confettiContainer.innerHTML = '';
+        }, 3000);
+    }
+
+    document.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+    });
+
+    actualizarInterfaz();
+  </script>
+
+<script src="https://www.drv.tw/inc/wd.js?s=matematicaquiz903jornadatarde"></script></body>
+</html>
