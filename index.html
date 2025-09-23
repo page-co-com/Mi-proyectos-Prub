@@ -154,37 +154,58 @@
       transition: opacity 0.5s ease;
     }
     
-    /* Botón de Pausa */
+    /* Botón de Pausa (ahora con el estilo del usuario) */
     .pause-button {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 80px;
-        height: 80px;
-        font-size: 3em;
-        color: white;
-        background: rgba(0, 0, 0, 0.5);
-        border: 4px solid white;
-        border-radius: 50%;
-        cursor: pointer;
-        z-index: 500;
-        box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
-        transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-weight: bold;
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: #222;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+      z-index: 500;
     }
 
     .pause-button:hover { 
-        transform: scale(1.1);
-        background: rgba(0, 0, 0, 0.7);
-        box-shadow: 0 0 20px rgba(255, 255, 255, 1);
-    }
-    .pause-button.paused {
-        padding-left: 5px; /* Para centrar el triángulo */
+      background: #333;
+      transform: scale(1.05);
     }
 
+    .pause-button .pause-icon {
+      display: flex;
+      gap: 8px;
+    }
+
+    .pause-button .pause-icon span {
+      display: block;
+      width: 10px;
+      height: 30px;
+      background: white;
+      border-radius: 3px;
+    }
+
+    .pause-button .paused-icon {
+      display: none;
+      width: 28px;
+      height: 28px;
+      background: white;
+      border-radius: 4px;
+    }
+
+    .pause-button.paused .pause-icon {
+        display: none;
+    }
+
+    .pause-button.paused .paused-icon {
+        display: block;
+    }
+    
     /* Menú de Pausa */
     .pause-menu {
       position: fixed;
@@ -294,7 +315,10 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-bottom: 2vh;
+        justify-content: center; /* Centrar verticalmente en el contenedor */
+        position: relative;
+        z-index: 1;
+        margin-top: -15vh; /* Ajustar posición más arriba */
     }
     
     .texto-centrado {
@@ -329,7 +353,7 @@
       gap: 30px 50px;
       width: 80%;
       max-width: 1000px;
-      margin-top: 3vh;
+      margin-top: 5vh; /* Se subió el margen para que los botones estén más arriba */
     }
     
     .boton {
@@ -545,7 +569,13 @@
 
   <div class="screen game-screen" id="game-screen">
     <div class="dimmed-background" id="dimmed-background"></div>
-    <button class="pause-button" id="pause-button">||</button>
+    <button class="pause-button" id="pause-button" onclick="togglePause()">
+      <div class="pause-icon">
+        <span></span>
+        <span></span>
+      </div>
+      <div class="paused-icon"></div>
+    </button>
     <div class="pause-menu" id="pause-menu">
       <h3>Juego Pausado</h3>
       <button class="resume-btn" onclick="togglePause()">Despausar</button>
@@ -572,7 +602,7 @@
     </div>
 
     <div class="mathquiz-header">
-      <h1>MathQuiz</h1>
+      <h1>MathQuiz de Matemáticas</h1>
       <div class="nivel-box" id="nivel-box">Nivel: Fácil</div>
     </div>
     
@@ -625,6 +655,7 @@
   <audio id="timeout-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/game-over.mp3" preload="auto"></audio>
   <audio id="win-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/win-bell.mp3" preload="auto"></audio>
   <audio id="tie-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/tie.mp3" preload="auto"></audio>
+  <audio id="countdown-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/countdown-sound.mp3" preload="auto"></audio>
 
   <div id="confetti-container"></div>
 
@@ -668,6 +699,7 @@
     const timeoutSound = document.getElementById('timeout-sound');
     const winSound = document.getElementById('win-sound');
     const tieSound = document.getElementById('tie-sound');
+    const countdownSound = document.getElementById('countdown-sound');
     
     let respuestaCorrecta;
     let timer;
@@ -681,11 +713,7 @@
     });
 
     startButton.addEventListener('click', iniciarJuego);
-    pauseButton.addEventListener('click', () => { 
-        playSound(pauseSound); 
-        togglePause(); 
-    });
-
+    
     document.querySelectorAll('.boton').forEach(boton => {
         boton.addEventListener('click', (event) => {
             if (!juegoPausado && (jugadorResponsable === 0 || jugadorResponsable === 2)) {
@@ -936,11 +964,13 @@
         ganadorPuntos = puntosJugador1;
         ganadorIcono = "https://i.ibb.co/n8DMgr0x/1756936103333.png";
         playSound(winSound);
+        createConfetti();
       } else if (puntosJugador2 > puntosJugador1) {
         ganadorNombre = nombreJugador2;
         ganadorPuntos = puntosJugador2;
         ganadorIcono = "https://i.ibb.co/YT10gzmf/1756936120200.png";
         playSound(winSound);
+        createConfetti();
       } else {
         ganadorNombre = "Empate";
         ganadorPuntos = puntosJugador1;
@@ -954,7 +984,7 @@
 
       gameScreen.style.display = 'none';
       pantallaFinal.style.display = 'flex';
-      createConfetti();
+      
     }
     
     function reiniciarJuego() {
@@ -973,7 +1003,7 @@
       pauseMenu.style.display = 'none';
       dimmedBackground.style.display = 'none';
       problemasAnteriores = [];
-      pauseButton.textContent = '||'; 
+      pauseButton.classList.remove('paused');
     }
 
     function actualizarInterfaz() {
@@ -1006,8 +1036,9 @@
             }
             tiempoRestante--;
             timerText.textContent = tiempoRestante;
-            if (tiempoRestante <= 5) {
+            if (tiempoRestante <= 5 && tiempoRestante > 0) {
                 timerText.classList.add('danger');
+                playSound(countdownSound);
             } else {
                 timerText.classList.remove('danger');
             }
@@ -1027,14 +1058,12 @@
     function togglePause() {
         juegoPausado = !juegoPausado;
         if (juegoPausado) {
-            pauseButton.textContent = '▶';
             pauseButton.classList.add('paused');
             dimmedBackground.style.display = 'block';
             pauseMenu.style.display = 'flex';
             fadeAudio(gameMusic, 0.1, 500);
             clearTimeout(timer);
         } else {
-            pauseButton.textContent = '||';
             pauseButton.classList.remove('paused');
             dimmedBackground.style.display = 'none';
             pauseMenu.style.display = 'none';
