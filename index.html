@@ -17,7 +17,7 @@
       background-color: #0d1b2a;
       overflow: hidden;
       position: relative;
-      user-select: none; /* Evita la selección de texto en todo el cuerpo */
+      user-select: none;
     }
     
     .screen {
@@ -56,20 +56,19 @@
       font-size: 3em;
       margin-bottom: 5px;
       font-weight: 900;
-      display: none; /* Oculta el texto original "Bienvenido a MathQuiz" */
+      display: block;
+      margin-bottom: 5px;
     }
 
     .start-screen .logo-image {
-        width: 80%;
-        max-width: 400px;
-        margin-bottom: 5px; /* Reducida la separación */
+        display: none;
     }
 
     .start-screen p {
         color: #fff;
         font-size: 1.2em;
         margin-top: 5px;
-        margin-bottom: 10px; /* Reducida la separación */
+        margin-bottom: 10px;
         font-weight: bold;
         text-shadow: 0 0 5px rgba(0,0,0,0.5);
     }
@@ -78,13 +77,13 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin-bottom: 15px; /* Reducida la separación */
+      margin-bottom: 15px;
     }
 
     .input-container label {
       color: #fff;
       font-size: 1.5em;
-      margin-bottom: 5px; /* Reducida la separación */
+      margin-bottom: 5px;
       font-weight: bold;
     }
     
@@ -108,7 +107,7 @@
       border-radius: 15px;
       cursor: pointer;
       position: relative;
-      margin-top: 10px; /* Reducida la separación */
+      margin-top: 10px;
       transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
       box-shadow: 0 5px 15px rgba(0,0,0,0.5);
     }
@@ -160,17 +159,31 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
-        font-size: 5em;
+        width: 80px;
+        height: 80px;
+        font-size: 3em;
         color: white;
-        background: none;
-        border: none;
+        background: rgba(0, 0, 0, 0.5);
+        border: 4px solid white;
+        border-radius: 50%;
         cursor: pointer;
         z-index: 500;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
-        transition: transform 0.2s;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+        transition: transform 0.2s, background 0.2s, box-shadow 0.2s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-weight: bold;
     }
 
-    .pause-button:hover { transform: scale(1.1); }
+    .pause-button:hover { 
+        transform: scale(1.1);
+        background: rgba(0, 0, 0, 0.7);
+        box-shadow: 0 0 20px rgba(255, 255, 255, 1);
+    }
+    .pause-button.paused {
+        padding-left: 5px; /* Para centrar el triángulo */
+    }
 
     /* Menú de Pausa */
     .pause-menu {
@@ -281,7 +294,7 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-bottom: 2vh; /* Reducida la separación */
+        margin-bottom: 2vh;
     }
     
     .texto-centrado {
@@ -313,10 +326,10 @@
     .contenedor {
       display: grid;
       grid-template-columns: repeat(2, minmax(200px, 1fr));
-      gap: 30px 50px; /* Reducida la separación */
+      gap: 30px 50px;
       width: 80%;
       max-width: 1000px;
-      margin-top: 3vh; /* Reducida la separación */
+      margin-top: 3vh;
     }
     
     .boton {
@@ -516,7 +529,7 @@
 
   <div class="screen start-screen" id="start-screen">
     <div class="start-screen-content">
-        <img src="https://i.ibb.co/p67KxGdP/3b52ca2ceb93989-file-000000000bb061f9be408f54c6ae9e20-wm.png" alt="MathQuiz Logo" class="logo-image">
+        <h2>MathQuiz</h2>
         <p>Juego por 903JT</p>
         <div class="input-container">
             <label for="player1-name">Nombre del Jugador 1</label>
@@ -610,6 +623,8 @@
   <audio id="click-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/click.mp3" preload="auto"></audio>
   <audio id="pause-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/pause-on.mp3" preload="auto"></audio>
   <audio id="timeout-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/game-over.mp3" preload="auto"></audio>
+  <audio id="win-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/win-bell.mp3" preload="auto"></audio>
+  <audio id="tie-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/tie.mp3" preload="auto"></audio>
 
   <div id="confetti-container"></div>
 
@@ -651,14 +666,15 @@
     const clickSound = document.getElementById('click-sound');
     const pauseSound = document.getElementById('pause-sound');
     const timeoutSound = document.getElementById('timeout-sound');
+    const winSound = document.getElementById('win-sound');
+    const tieSound = document.getElementById('tie-sound');
     
     let respuestaCorrecta;
     let timer;
     let juegoPausado = false;
     let tiempoRestante = tiempoPorNivel;
-    let jugadorResponsable = 0; // 0 = ambos pueden responder, 1 = solo J1, 2 = solo J2
+    let jugadorResponsable = 0;
 
-    // Reproducir música de inicio al cargar la página
     document.addEventListener('DOMContentLoaded', () => {
         startMusic.volume = 0.5;
         startMusic.play();
@@ -862,12 +878,11 @@
         playSound(wrongSound);
         mostrarFeedback(false);
         if (jugador === 1) {
-            jugadorResponsable = 2; // Desactivar J1, dar oportunidad a J2
+            jugadorResponsable = 2;
         } else {
-            jugadorResponsable = 1; // Desactivar J2, dar oportunidad a J1
+            jugadorResponsable = 1;
         }
 
-        // Si el otro jugador ya falló o no ha respondido, avanzar el nivel
         if (jugadorResponsable !== 0) {
             setTimeout(avanzarNivel, 1000);
         }
@@ -883,7 +898,7 @@
     
     function avanzarNivel(skipped = false) {
       clearTimeout(timer);
-      jugadorResponsable = 0; // Resetear para el siguiente nivel
+      jugadorResponsable = 0;
 
       if (skipped) {
           playSound(timeoutSound);
@@ -920,14 +935,17 @@
         ganadorNombre = nombreJugador1;
         ganadorPuntos = puntosJugador1;
         ganadorIcono = "https://i.ibb.co/n8DMgr0x/1756936103333.png";
+        playSound(winSound);
       } else if (puntosJugador2 > puntosJugador1) {
         ganadorNombre = nombreJugador2;
         ganadorPuntos = puntosJugador2;
         ganadorIcono = "https://i.ibb.co/YT10gzmf/1756936120200.png";
+        playSound(winSound);
       } else {
         ganadorNombre = "Empate";
         ganadorPuntos = puntosJugador1;
         ganadorIcono = "https://www.flaticon.com/svg/static/icons/svg/1054/1054522.svg";
+        playSound(tieSound);
       }
 
       winnerNameSpan.textContent = ganadorNombre;
@@ -935,4 +953,118 @@
       winnerIconImg.src = ganadorIcono;
 
       gameScreen.style.display = 'none';
-      pantallaFinal
+      pantallaFinal.style.display = 'flex';
+      createConfetti();
+    }
+    
+    function reiniciarJuego() {
+      gameScreen.style.display = 'none';
+      pantallaFinal.style.display = 'none';
+      startScreen.style.display = 'flex';
+      
+      player1NameInput.value = '';
+      player2NameInput.value = '';
+      clearTimeout(timer);
+      gameMusic.pause();
+      startMusic.currentTime = 0;
+      startMusic.volume = 0.5;
+      startMusic.play();
+      juegoPausado = false; 
+      pauseMenu.style.display = 'none';
+      dimmedBackground.style.display = 'none';
+      problemasAnteriores = [];
+      pauseButton.textContent = '||'; 
+    }
+
+    function actualizarInterfaz() {
+      const dificultad = obtenerDificultad();
+      nivelBox.textContent = `Nivel: ${dificultad.charAt(0).toUpperCase() + dificultad.slice(1)}`;
+      
+      gameScreen.classList.remove('facil', 'medio', 'dificil');
+      if (dificultad === 'facil') {
+          gameScreen.classList.add('facil');
+      } else if (dificultad === 'medio') {
+          gameScreen.classList.add('medio');
+      } else {
+          gameScreen.classList.add('dificil');
+      }
+    }
+    
+    function obtenerDificultad() {
+      if (nivelActual <= 3) return 'facil';
+      if (nivelActual <= 6) return 'medio';
+      return 'dificil';
+    }
+    
+    function iniciarTiempo() {
+        if (juegoPausado) return;
+        timerText.textContent = tiempoRestante;
+
+        const updateTimer = () => {
+            if (juegoPausado) {
+                return;
+            }
+            tiempoRestante--;
+            timerText.textContent = tiempoRestante;
+            if (tiempoRestante <= 5) {
+                timerText.classList.add('danger');
+            } else {
+                timerText.classList.remove('danger');
+            }
+
+            if (tiempoRestante <= 0) {
+                playSound(timeoutSound);
+                avanzarNivel();
+            } else {
+                timer = setTimeout(updateTimer, 1000);
+            }
+        };
+
+        clearTimeout(timer);
+        timer = setTimeout(updateTimer, 1000);
+    }
+    
+    function togglePause() {
+        juegoPausado = !juegoPausado;
+        if (juegoPausado) {
+            pauseButton.textContent = '▶';
+            pauseButton.classList.add('paused');
+            dimmedBackground.style.display = 'block';
+            pauseMenu.style.display = 'flex';
+            fadeAudio(gameMusic, 0.1, 500);
+            clearTimeout(timer);
+        } else {
+            pauseButton.textContent = '||';
+            pauseButton.classList.remove('paused');
+            dimmedBackground.style.display = 'none';
+            pauseMenu.style.display = 'none';
+            fadeAudio(gameMusic, 0.5, 500);
+            iniciarTiempo();
+        }
+    }
+
+    function createConfetti() {
+        const confettiContainer = document.getElementById('confetti-container');
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = `${Math.random() * 100}vw`;
+            confetti.style.animationDelay = `${Math.random() * 2}s`;
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            confetti.style.transform = `scale(${Math.random() * 0.5 + 0.5})`;
+            confettiContainer.appendChild(confetti);
+        }
+        setTimeout(() => {
+            confettiContainer.innerHTML = '';
+        }, 3000);
+    }
+
+    document.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+    });
+
+    actualizarInterfaz();
+  </script>
+
+<script src="https://www.drv.tw/inc/wd.js?s=matematicaquiz903jornadatarde"></script></body>
+</html>
