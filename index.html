@@ -396,7 +396,7 @@ body {
       align-items: center;
       position: relative;
       z-index: 1;
-      top: 15vh;
+      top: 15vh; /* Ajuste para bajar el texto del problema un poco */
     }
     
     .texto-centrado {
@@ -433,7 +433,7 @@ body {
       gap: 30px 50px;
       width: 80%;
       max-width: 1000px;
-      margin-top: 25vh;
+      margin-top: 15vh; /* Ajuste para subir las respuestas un poco */
       padding-bottom: 10vh;
     }
     
@@ -626,6 +626,8 @@ body {
             opacity: 0;
         }
     }
+    
+    /* Nuevos estilos para el overlay de instrucciones (removido) */
 </style>
 </head>
 <body>
@@ -681,7 +683,6 @@ body {
             <img src="https://i.ibb.co/n8DMgr0x/1756936103333.png" alt="Icono Jugador 1">
             <div>
                 <span id="player1-name-display">Jugador 1</span><br>
-                <span class="player-keys">(Click Izquierdo)</span><br>
                 Puntos: <span id="puntos-jugador-1">0</span>
             </div>
         </div>
@@ -689,7 +690,6 @@ body {
         <div class="player-info player-2-info">
             <div>
                 <span id="player2-name-display">Jugador 2</span><br>
-                <span class="player-keys">(Click Derecho)</span><br>
                 Puntos: <span id="puntos-jugador-2">0</span>
             </div>
             <img src="https://i.ibb.co/YT10gzmf/1756936120200.png" alt="Icono Jugador 2">
@@ -803,6 +803,7 @@ body {
     let tiempoRestante = tiempoPorNivel;
     let turnoActual = 1; // 1 para Jugador 1, 2 para Jugador 2
     let jugadorHabilitado = 0; // 0 = ambos, 1 = solo J1, 2 = solo J2
+    let haRespondido = false; // Variable para controlar el spam de clics
 
     document.addEventListener('DOMContentLoaded', () => {
         startMusic.volume = 0.5;
@@ -813,14 +814,16 @@ body {
     
     document.querySelectorAll('.boton').forEach(boton => {
         boton.addEventListener('click', (event) => {
-            if (!juegoPausado && (jugadorHabilitado === 0 || jugadorHabilitado === 1)) {
+            if (!juegoPausado && !haRespondido && (jugadorHabilitado === 0 || jugadorHabilitado === 1)) {
+                haRespondido = true;
                 playSound(clickSound);
                 manejarEleccion(boton.dataset.option, 1);
             }
         });
         boton.addEventListener('contextmenu', (event) => {
             event.preventDefault();
-            if (!juegoPausado && (jugadorHabilitado === 0 || jugadorHabilitado === 2)) {
+            if (!juegoPausado && !haRespondido && (jugadorHabilitado === 0 || jugadorHabilitado === 2)) {
+                haRespondido = true;
                 playSound(clickSound);
                 manejarEleccion(boton.dataset.option, 2);
             }
@@ -880,9 +883,9 @@ body {
       gameMusic.play();
       fadeAudio(gameMusic, 0.5, 2000);
       
-      reiniciarPartida(true);
+      reiniciarPartida();
     }
-
+    
     function volverAlMenu() {
         if (juegoPausado) {
             togglePause();
@@ -928,7 +931,7 @@ body {
         problemasAnteriores = [];
     }
     
-    function reiniciarPartida(isNewGame = false) {
+    function reiniciarPartida() {
       if (juegoPausado) {
         togglePause();
       }
@@ -952,6 +955,7 @@ body {
     }
     
     function generarProblema() {
+      haRespondido = false; // Resetear el estado de respuesta
       const dificultad = obtenerDificultad();
       let num1, num2, operacion;
       let problema, resultado;
@@ -1035,8 +1039,9 @@ body {
     }
 
     function manejarEleccion(opcionElegida, jugador) {
-      if (juegoPausado) return;
+      if (juegoPausado || haRespondido) return;
       
+      haRespondido = true;
       const opcionSeleccionada = document.getElementById(`opcion-${opcionElegida}`);
       const valorSeleccionado = parseInt(opcionSeleccionada.textContent);
       
@@ -1058,9 +1063,7 @@ body {
         mostrarFeedback(false);
         if (jugadorHabilitado === 0) {
             jugadorHabilitado = (jugador === 1) ? 2 : 1;
-            // El otro jugador tiene la oportunidad de responder
         } else {
-            // Ambos jugadores han fallado
             clearTimeout(timer);
             setTimeout(avanzarNivel, 1000);
         }
