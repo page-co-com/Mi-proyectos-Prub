@@ -55,6 +55,13 @@
       font-size: 3em;
       margin-bottom: 5px;
       font-weight: 900;
+      display: none; /* Oculta el texto original "Bienvenido a MathQuiz" */
+    }
+
+    .start-screen .logo-image {
+        width: 80%; /* Ajusta el tamaño de la imagen del logo */
+        max-width: 400px; /* Tamaño máximo para que no se vea demasiado grande */
+        margin-bottom: 20px;
     }
 
     .start-screen p {
@@ -149,19 +156,17 @@
     
     /* Botón de Pausa */
     .pause-button {
-      position: fixed;
-      bottom: 20px; 
-      right: 20px;
-      width: 90px;
-      height: 90px;
-      background-image: url('https://i.ibb.co/6800xM6/pausa.png'); 
-      background-size: contain;
-      background-repeat: no-repeat;
-      background-color: transparent;
-      border: none;
-      cursor: pointer;
-      z-index: 500;
-      transition: transform 0.2s;
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        font-size: 5em;
+        color: white;
+        background: none;
+        border: none;
+        cursor: pointer;
+        z-index: 500;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        transition: transform 0.2s;
     }
 
     .pause-button:hover { transform: scale(1.1); }
@@ -258,8 +263,8 @@
     .player-2-info { right: 20px; }
 
     .player-info img {
-        width: 150px; /* Más ancho */
-        height: 120px; /* Más largo */
+        width: 150px; 
+        height: 120px;
         margin-right: 15px;
         box-shadow: none;
         border: none;
@@ -270,14 +275,32 @@
         margin-left: 15px;
     }
 
-    /* Estilos del texto del problema */
+    /* Estilos del texto del problema y temporizador */
+    .problem-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 5vh;
+    }
+    
     .texto-centrado {
       font-size: 110px;
       font-weight: 990;
       color: white;
       text-shadow: 0 0 15px rgba(0,0,0,0.9);
       transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
-      margin-bottom: 5vh;
+    }
+    
+    .timer-text {
+        font-size: 4em;
+        font-weight: 900;
+        color: #fff;
+        text-shadow: 0 0 10px rgba(0,0,0,0.8);
+        transition: color 0.5s ease;
+    }
+
+    .timer-text.danger {
+        color: #dc3545;
     }
     
     .texto-centrado.oculto {
@@ -285,30 +308,6 @@
       opacity: 0;
     }
 
-    /* Estilos de la barra de tiempo */
-    .barra-contenedor {
-      width: 60%;
-      max-width: 800px;
-      height: 25px;
-      background: #e0e0e0;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      margin-top: 5vh;
-    }
-    
-    .barra-tiempo {
-      height: 100%;
-      width: 100%;
-      background: #32cd32;
-      border-radius: 12px;
-      transition: width 20s linear;
-    }
-
-    .barra-tiempo.paused {
-        animation-play-state: paused;
-    }
-    
     /* Estilos de los botones flotantes */
     .contenedor {
       display: grid;
@@ -334,9 +333,8 @@
       user-select: none;
       -webkit-user-select: none;
       -moz-user-select: none;
-      pointer-events: none;
+      cursor: pointer;
       transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
-      cursor: default;
     }
     
     .boton.oculto {
@@ -517,7 +515,7 @@
 
   <div class="screen start-screen" id="start-screen">
     <div class="start-screen-content">
-        <h2>Bienvenido a MathQuiz</h2>
+        <img src="https://i.ibb.co/p67KxGdP/3b52ca2ceb93989-file-000000000bb061f9be408f54c6ae9e20-wm.png" alt="MathQuiz Logo" class="logo-image">
         <p>Juego por 903JT</p>
         <div class="input-container">
             <label for="player1-name">Nombre del Jugador 1</label>
@@ -533,7 +531,7 @@
 
   <div class="screen game-screen" id="game-screen">
     <div class="dimmed-background" id="dimmed-background"></div>
-    <button class="pause-button" id="pause-button"></button>
+    <button class="pause-button" id="pause-button">||</button>
     <div class="pause-menu" id="pause-menu">
       <h3>Juego Pausado</h3>
       <button class="resume-btn" onclick="togglePause()">Despausar</button>
@@ -545,7 +543,7 @@
       <img src="https://i.ibb.co/n8DMgr0x/1756936103333.png" alt="Icono Jugador 1">
       <div>
         <span id="player1-name-display">Jugador 1</span><br>
-        <span class="player-keys">(QWER)</span><br>
+        <span class="player-keys">(Click Derecho)</span><br>
         Puntos: <span id="puntos-jugador-1">0</span>
       </div>
     </div>
@@ -553,7 +551,7 @@
     <div class="player-info player-2-info">
       <div>
         <span id="player2-name-display">Jugador 2</span><br>
-        <span class="player-keys">(ASDF)</span><br>
+        <span class="player-keys">(Click Izquierdo)</span><br>
         Puntos: <span id="puntos-jugador-2">0</span>
       </div>
       <img src="https://i.ibb.co/YT10gzmf/1756936120200.png" alt="Icono Jugador 2">
@@ -564,29 +562,28 @@
       <div class="nivel-box" id="nivel-box">Nivel: Fácil</div>
     </div>
     
-    <p class="texto-centrado" id="problema-texto">10 + 5</p>
-    
-    <div class="contenedor" id="opciones-contenedor">
-      <div class="boton" data-option="Q">
-        <div class="letra">Q</div>
-        <div class="texto" id="opcion-A">15</div>
-      </div>
-      <div class="boton" data-option="W">
-        <div class="letra">W</div>
-        <div class="texto" id="opcion-B">12</div>
-      </div>
-      <div class="boton" data-option="E">
-        <div class="letra">E</div>
-        <div class="texto" id="opcion-C">20</div>
-      </div>
-      <div class="boton" data-option="R">
-        <div class="letra">R</div>
-        <div class="texto" id="opcion-D">8</div>
-      </div>
+    <div class="problem-container">
+      <p class="texto-centrado" id="problema-texto">10 + 5</p>
+      <p class="timer-text" id="timer-text">20</p>
     </div>
     
-    <div class="barra-contenedor">
-      <div class="barra-tiempo" id="barra-tiempo"></div>
+    <div class="contenedor" id="opciones-contenedor">
+      <div class="boton" data-option="A">
+        <div class="letra">A</div>
+        <div class="texto" id="opcion-A">15</div>
+      </div>
+      <div class="boton" data-option="B">
+        <div class="letra">B</div>
+        <div class="texto" id="opcion-B">12</div>
+      </div>
+      <div class="boton" data-option="C">
+        <div class="letra">C</div>
+        <div class="texto" id="opcion-C">20</div>
+      </div>
+      <div class="boton" data-option="D">
+        <div class="letra">D</div>
+        <div class="texto" id="opcion-D">8</div>
+      </div>
     </div>
     
     <div class="footer-info">
@@ -635,8 +632,8 @@
     const puntosJugador1Span = document.getElementById('puntos-jugador-1');
     const puntosJugador2Span = document.getElementById('puntos-jugador-2');
     const problemaTexto = document.getElementById('problema-texto');
+    const timerText = document.getElementById('timer-text');
     const nivelBox = document.getElementById('nivel-box');
-    const barraTiempo = document.getElementById('barra-tiempo');
     const opcionesContenedor = document.getElementById('opciones-contenedor');
     const pauseButton = document.getElementById('pause-button');
     const pauseMenu = document.getElementById('pause-menu');
@@ -655,12 +652,28 @@
     let respuestaCorrecta;
     let timer;
     let juegoPausado = false;
-    let tiempoRestante = tiempoPorNivel * 1000;
-    let ultimaPausa = 0;
+    let tiempoRestante = tiempoPorNivel;
 
     startButton.addEventListener('click', iniciarJuego);
-    pauseButton.addEventListener('click', () => { playSound(pauseSound); togglePause(); });
-    
+    pauseButton.addEventListener('click', () => { 
+        playSound(pauseSound); 
+        togglePause(); 
+    });
+
+    document.querySelectorAll('.boton').forEach(boton => {
+        boton.addEventListener('click', (event) => {
+            if (!juegoPausado) {
+                manejarEleccion(boton.dataset.option, 2);
+            }
+        });
+        boton.addEventListener('contextmenu', (event) => {
+            event.preventDefault(); // Evitar el menú contextual
+            if (!juegoPausado) {
+                manejarEleccion(boton.dataset.option, 1);
+            }
+        });
+    });
+
     function playSound(audioElement) {
         audioElement.currentTime = 0;
         audioElement.play();
@@ -700,11 +713,6 @@
       
       pantallaFinal.style.display = 'none';
       gameScreen.style.display = 'flex';
-      
-      document.removeEventListener('keydown', manejarTeclas);
-      setTimeout(() => {
-        document.addEventListener('keydown', manejarTeclas);
-      }, 500);
 
       problemaTexto.classList.remove('oculto');
       document.querySelectorAll('.boton').forEach(boton => boton.classList.remove('oculto'));
@@ -795,6 +803,7 @@
       opciones.sort(() => Math.random() - 0.5);
 
       const idsOpciones = ['opcion-A', 'opcion-B', 'opcion-C', 'opcion-D'];
+      const letras = ['A', 'B', 'C', 'D'];
       for (let i = 0; i < opciones.length; i++) {
         document.getElementById(idsOpciones[i]).textContent = opciones[i];
       }
@@ -803,15 +812,7 @@
     function manejarEleccion(opcionElegida, jugador) {
       if (juegoPausado) return;
       
-      const opcionesTeclas = {
-          'Q': 'A', 'W': 'B', 'E': 'C', 'R': 'D',
-          'A': 'A', 'S': 'B', 'D': 'C', 'F': 'D'
-      };
-      
-      const opcionMapeada = opcionesTeclas[opcionElegida.toUpperCase()];
-      if (!opcionMapeada) return;
-
-      const opcionSeleccionada = document.getElementById(`opcion-${opcionMapeada}`);
+      const opcionSeleccionada = document.getElementById(`opcion-${opcionElegida}`);
       const valorSeleccionado = parseInt(opcionSeleccionada.textContent);
       
       clearTimeout(timer);
@@ -855,7 +856,7 @@
       }
 
       nivelActual++;
-      tiempoRestante = tiempoPorNivel * 1000;
+      tiempoRestante = tiempoPorNivel;
       
       problemaTexto.classList.add('oculto');
       document.querySelectorAll('.boton').forEach(boton => boton.classList.add('oculto'));
@@ -887,7 +888,7 @@
       } else {
         ganadorNombre = "Empate";
         ganadorPuntos = puntosJugador1;
-        ganadorIcono = "https://www.flaticon.com/svg/static/icons/svg/1054/1054522.svg";
+        ganadorIcono = "https://www.flaticon.com/svg/static/icons/svg/1054/1054522.svg"; // Icono de empate
       }
 
       winnerNameSpan.textContent = ganadorNombre;
@@ -901,8 +902,11 @@
     }
     
     function reiniciarJuego() {
-      startScreen.style.display = 'flex';
+      // Ocultar todas las pantallas antes de mostrar la de inicio
+      gameScreen.style.display = 'none';
       pantallaFinal.style.display = 'none';
+      startScreen.style.display = 'flex'; // Mostrar solo la pantalla de inicio
+      
       player1NameInput.value = '';
       player2NameInput.value = '';
       clearTimeout(timer);
@@ -910,6 +914,10 @@
       juegoPausado = false; 
       pauseMenu.style.display = 'none';
       dimmedBackground.style.display = 'none';
+      problemasAnteriores = []; // Resetear problemas para un nuevo juego
+      
+      // Asegurarse de que el botón de pausa vuelva a su estado inicial
+      pauseButton.textContent = '||'; 
     }
 
     function actualizarInterfaz() {
@@ -934,56 +942,48 @@
     
     function iniciarTiempo() {
         if (juegoPausado) return;
-        
-        barraTiempo.style.transition = 'width linear';
-        barraTiempo.style.width = `${(tiempoRestante / (tiempoPorNivel * 1000)) * 100}%`;
-        barraTiempo.style.transitionDuration = `${tiempoRestante / 1000}s`;
-        barraTiempo.style.width = '0%';
-        ultimaPausa = Date.now();
-        
-        timer = setTimeout(() => {
-            playSound(timeoutSound);
-            avanzarNivel();
-        }, tiempoRestante);
+        timerText.textContent = tiempoRestante;
+
+        const updateTimer = () => {
+            if (juegoPausado) {
+                return;
+            }
+            tiempoRestante--;
+            timerText.textContent = tiempoRestante;
+            if (tiempoRestante <= 5) {
+                timerText.classList.add('danger');
+            } else {
+                timerText.classList.remove('danger');
+            }
+
+            if (tiempoRestante <= 0) {
+                playSound(timeoutSound);
+                avanzarNivel();
+            } else {
+                timer = setTimeout(updateTimer, 1000);
+            }
+        };
+
+        clearTimeout(timer);
+        timer = setTimeout(updateTimer, 1000);
     }
     
     function togglePause() {
         juegoPausado = !juegoPausado;
         if (juegoPausado) {
+            pauseButton.textContent = '>'; // Símbolo de "play" cuando está pausado
             dimmedBackground.style.display = 'block';
             pauseMenu.style.display = 'flex';
             bgMusic.volume = 0.2;
-            clearTimeout(timer);
-            const tiempoTranscurrido = Date.now() - ultimaPausa;
-            tiempoRestante -= tiempoTranscurrido;
-            barraTiempo.style.transition = 'none';
-            barraTiempo.style.width = `${(tiempoRestante / (tiempoPorNivel * 1000)) * 100}%`;
-            document.removeEventListener('keydown', manejarTeclas);
+            clearTimeout(timer); // Detener el temporizador
         } else {
+            pauseButton.textContent = '||'; // Símbolo de "pausa" cuando se reanuda
             dimmedBackground.style.display = 'none';
             pauseMenu.style.display = 'none';
             bgMusic.volume = 0.5;
-            iniciarTiempo();
-            document.addEventListener('keydown', manejarTeclas);
+            iniciarTiempo(); // Reanudar el temporizador
         }
     }
-
-    function manejarTeclas(e) {
-      if (juegoPausado) return;
-      const tecla = e.key.toUpperCase();
-      const opcionesJugador1 = ['Q', 'W', 'E', 'R'];
-      const opcionesJugador2 = ['A', 'S', 'D', 'F'];
-
-      if (opcionesJugador1.includes(tecla)) {
-        playSound(clickSound);
-        manejarEleccion(tecla, 1);
-      } else if (opcionesJugador2.includes(tecla)) {
-        playSound(clickSound);
-        manejarEleccion(tecla, 2);
-      }
-    }
-    
-    document.addEventListener('keydown', manejarTeclas);
 
     function createConfetti() {
         const confettiContainer = document.getElementById('confetti-container');
@@ -1000,6 +1000,11 @@
             confettiContainer.innerHTML = '';
         }, 3000);
     }
+
+    // Prevención del menú contextual en todo el documento para el clic derecho del jugador 1
+    document.addEventListener('contextmenu', (event) => {
+        event.preventDefault();
+    });
 
     actualizarInterfaz();
   </script>
