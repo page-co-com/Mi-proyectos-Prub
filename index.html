@@ -190,22 +190,10 @@
       border-radius: 3px;
     }
 
-    .pause-button .paused-icon {
-      display: none;
-      width: 28px;
-      height: 28px;
-      background: white;
-      border-radius: 4px;
-    }
-
     .pause-button.paused .pause-icon {
         display: none;
     }
 
-    .pause-button.paused .paused-icon {
-        display: block;
-    }
-    
     /* Menú de Pausa */
     .pause-menu {
       position: fixed;
@@ -243,6 +231,8 @@
     .pause-menu .resume-btn { background-color: #28a745; color: white; }
     .pause-menu .restart-btn { background-color: #ffc107; color: black; }
     .pause-menu .skip-btn { background-color: #17a2b8; color: white; }
+    .pause-menu .back-to-menu-btn { background-color: #6c757d; color: white; }
+
 
     .pause-menu button:hover { transform: translateY(-3px); }
     
@@ -312,13 +302,12 @@
 
     /* Estilos del texto del problema y temporizador */
     .problem-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center; /* Centrar verticalmente en el contenedor */
-        position: relative;
-        z-index: 1;
-        margin-top: -15vh; /* Ajustar posición más arriba */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+      top: -10vh; /* Ajustado para que el problema esté más abajo */
     }
     
     .texto-centrado {
@@ -330,11 +319,12 @@
     }
     
     .timer-text {
-        font-size: 4em;
-        font-weight: 900;
-        color: #fff;
-        text-shadow: 0 0 10px rgba(0,0,0,0.8);
-        transition: color 0.5s ease;
+      font-size: 4em;
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 0 10px rgba(0,0,0,0.8);
+      transition: color 0.5s ease;
+      margin-top: -20px; /* Ajuste para que esté más cerca del problema */
     }
 
     .timer-text.danger {
@@ -494,7 +484,7 @@
     }
 
     /* Nuevas clases para los efectos de pantalla */
-    .overlay {
+    .screen-overlay {
       position: fixed;
       top: 0;
       left: 0;
@@ -503,17 +493,15 @@
       z-index: 150;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 1s ease-in-out;
+      transition: background-color 0.5s ease-in-out, opacity 1s ease-in-out;
     }
     
-    .overlay.correcto {
-      background-color: rgba(0, 255, 0, 0.6);
+    .screen-overlay.visible {
       opacity: 1;
     }
     
-    .overlay.incorrecto {
+    .screen-overlay.incorrecto {
       background-color: rgba(255, 0, 0, 0.6);
-      opacity: 1;
     }
 
     /* Estilos para el confeti */
@@ -569,25 +557,26 @@
 
   <div class="screen game-screen" id="game-screen">
     <div class="dimmed-background" id="dimmed-background"></div>
+    <div class="screen-overlay" id="screen-overlay"></div>
     <button class="pause-button" id="pause-button" onclick="togglePause()">
       <div class="pause-icon">
         <span></span>
         <span></span>
       </div>
-      <div class="paused-icon"></div>
     </button>
     <div class="pause-menu" id="pause-menu">
       <h3>Juego Pausado</h3>
       <button class="resume-btn" onclick="togglePause()">Despausar</button>
       <button class="restart-btn" onclick="reiniciarPartida()">Reiniciar Partida</button>
       <button class="skip-btn" onclick="avanzarNivel(true)">Pasar Problema</button>
+      <button class="back-to-menu-btn" onclick="volverAlMenu()">Volver al Menú</button>
     </div>
     
     <div class="player-info player-1-info">
       <img src="https://i.ibb.co/n8DMgr0x/1756936103333.png" alt="Icono Jugador 1">
       <div>
         <span id="player1-name-display">Jugador 1</span><br>
-        <span class="player-keys">(Click Derecho)</span><br>
+        <span class="player-keys">(Click Izquierdo)</span><br>
         Puntos: <span id="puntos-jugador-1">0</span>
       </div>
     </div>
@@ -595,7 +584,7 @@
     <div class="player-info player-2-info">
       <div>
         <span id="player2-name-display">Jugador 2</span><br>
-        <span class="player-keys">(Click Izquierdo)</span><br>
+        <span class="player-keys">(Click Derecho)</span><br>
         Puntos: <span id="puntos-jugador-2">0</span>
       </div>
       <img src="https://i.ibb.co/YT10gzmf/1756936120200.png" alt="Icono Jugador 2">
@@ -689,6 +678,7 @@
     const winnerNameSpan = document.getElementById('winner-name');
     const winnerScoreSpan = document.getElementById('winner-score');
     const winnerIconImg = document.getElementById('winner-icon');
+    const screenOverlay = document.getElementById('screen-overlay');
     
     const startMusic = document.getElementById('start-music');
     const gameMusic = document.getElementById('game-music');
@@ -705,7 +695,8 @@
     let timer;
     let juegoPausado = false;
     let tiempoRestante = tiempoPorNivel;
-    let jugadorResponsable = 0;
+    let turnoActual = 1; // 1 para Jugador 1, 2 para Jugador 2
+    let jugadorHabilitado = 0; // 0 = ambos, 1 = solo J1, 2 = solo J2
 
     document.addEventListener('DOMContentLoaded', () => {
         startMusic.volume = 0.5;
@@ -716,16 +707,16 @@
     
     document.querySelectorAll('.boton').forEach(boton => {
         boton.addEventListener('click', (event) => {
-            if (!juegoPausado && (jugadorResponsable === 0 || jugadorResponsable === 2)) {
+            if (!juegoPausado && (jugadorHabilitado === 0 || jugadorHabilitado === 1)) {
                 playSound(clickSound);
-                manejarEleccion(boton.dataset.option, 2);
+                manejarEleccion(boton.dataset.option, 1);
             }
         });
         boton.addEventListener('contextmenu', (event) => {
             event.preventDefault();
-            if (!juegoPausado && (jugadorResponsable === 0 || jugadorResponsable === 1)) {
+            if (!juegoPausado && (jugadorHabilitado === 0 || jugadorHabilitado === 2)) {
                 playSound(clickSound);
-                manejarEleccion(boton.dataset.option, 1);
+                manejarEleccion(boton.dataset.option, 2);
             }
         });
     });
@@ -776,6 +767,27 @@
       
       reiniciarPartida(true);
     }
+
+    function volverAlMenu() {
+        if (juegoPausado) {
+            togglePause();
+        }
+        gameScreen.style.display = 'none';
+        pantallaFinal.style.display = 'none';
+        startScreen.style.display = 'flex';
+        
+        player1NameInput.value = '';
+        player2NameInput.value = '';
+        clearTimeout(timer);
+        gameMusic.pause();
+        startMusic.currentTime = 0;
+        startMusic.volume = 0.5;
+        startMusic.play();
+        juegoPausado = false; 
+        pauseMenu.style.display = 'none';
+        dimmedBackground.style.display = 'none';
+        problemasAnteriores = [];
+    }
     
     function reiniciarPartida(isNewGame = false) {
       if (juegoPausado) {
@@ -787,7 +799,7 @@
       problemasAnteriores = [];
       puntosJugador1Span.textContent = puntosJugador1;
       puntosJugador2Span.textContent = puntosJugador2;
-      jugadorResponsable = 0;
+      jugadorHabilitado = 0;
       
       pantallaFinal.style.display = 'none';
       gameScreen.style.display = 'flex';
@@ -905,28 +917,32 @@
       } else {
         playSound(wrongSound);
         mostrarFeedback(false);
-        if (jugador === 1) {
-            jugadorResponsable = 2;
+        if (jugadorHabilitado === 0) {
+            jugadorHabilitado = (jugador === 1) ? 2 : 1;
+            // El otro jugador tiene la oportunidad de responder
         } else {
-            jugadorResponsable = 1;
-        }
-
-        if (jugadorResponsable !== 0) {
+            // Ambos jugadores han fallado
+            clearTimeout(timer);
             setTimeout(avanzarNivel, 1000);
         }
       }
     }
 
     function mostrarFeedback(esCorrecto) {
-        gameScreen.style.filter = esCorrecto ? 'brightness(1.5)' : 'brightness(0.5)';
-        setTimeout(() => {
-            gameScreen.style.filter = 'none';
-        }, 500);
+        if (!esCorrecto) {
+            screenOverlay.classList.add('incorrecto', 'visible');
+            setTimeout(() => {
+                screenOverlay.classList.remove('visible');
+                setTimeout(() => {
+                    screenOverlay.classList.remove('incorrecto');
+                }, 500);
+            }, 2000);
+        }
     }
     
     function avanzarNivel(skipped = false) {
       clearTimeout(timer);
-      jugadorResponsable = 0;
+      jugadorHabilitado = 0; // Se restablece el turno para el siguiente problema
 
       if (skipped) {
           playSound(timeoutSound);
@@ -1003,7 +1019,6 @@
       pauseMenu.style.display = 'none';
       dimmedBackground.style.display = 'none';
       problemasAnteriores = [];
-      pauseButton.classList.remove('paused');
     }
 
     function actualizarInterfaz() {
@@ -1058,13 +1073,11 @@
     function togglePause() {
         juegoPausado = !juegoPausado;
         if (juegoPausado) {
-            pauseButton.classList.add('paused');
             dimmedBackground.style.display = 'block';
             pauseMenu.style.display = 'flex';
             fadeAudio(gameMusic, 0.1, 500);
             clearTimeout(timer);
         } else {
-            pauseButton.classList.remove('paused');
             dimmedBackground.style.display = 'none';
             pauseMenu.style.display = 'none';
             fadeAudio(gameMusic, 0.5, 500);
