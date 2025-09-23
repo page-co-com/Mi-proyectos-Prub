@@ -1,11 +1,87 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MathQuiz de Matemáticas</title>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
+<meta charset="UTF-8">
+<title>MathQuiz-903</title>
+<style>
+body {
+  margin: 0;
+  padding: 0;
+  background-image:url("https://i.ibb.co/mV7GpHL7/34fa874255dde80-file-00000000fb1061f9b2727399d83e081c-wm.png");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  font-family: sans-serif;
+}
+
+/* Ocultar pantallas */
+.pantalla {
+  display: none;
+}
+.activa {
+  display: block;
+}
+
+/* --- ESTILOS MENÚ --- */
+.titulo {
+  width: 300px;
+  height: 300px;
+  position: relative;
+  top: 5px;
+  left: 350px;
+}
+
+.boton-jugarsolo,
+.boton-jugarduo,
+.boton-buscarpartida,
+.boton-crearpartida {
+  width: 200px;
+  height: 100px;
+  position: relative;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+}
+
+.boton-jugarsolo { top: 35px; right: 25px; }
+.boton-jugarduo { top: 35px; left: 10px; }
+.boton-buscarpartida { top: 130px; right: 440px; }
+.boton-crearpartida { top: 30px; left: 520px; }
+
+.boton-jugarsolo:hover,
+.boton-jugarduo:hover,
+.boton-buscarpartida:hover,
+.boton-crearpartida:hover {
+  transform: scale(1.1);
+}
+
+/* --- ESTILOS JUEGO DUO (Eliminada la pantalla intermedia) --- */
+/* Esta sección ahora solo contiene estilos base si fueran necesarios,
+   pero la pantalla intermedia con "Juego Duo" y "Volver al inicio" ha sido eliminada. */
+
+
+/* --- ESTILOS BOTÓN VOLVER AL MENÚ --- */
+/* Este estilo es para el botón de volver en la pantalla de nombres del juego Duo */
+.back-to-menu-button {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 190px; /* Incrementado para hacerlo más largo */
+    height: 150px; /* Incrementado para hacerlo más grande */
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 1000;
+}
+.back-to-menu-button img {
+    width: 100%;
+    height: 100%;
+}
+.back-to-menu-button:hover {
+    transform: scale(1.1);
+}
+
+
+/* Resto de estilos del juego */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;700;900&display=swap');
 
     body {
       font-family: 'Poppins', sans-serif;
@@ -154,7 +230,7 @@
       transition: opacity 0.5s ease;
     }
     
-    /* Botón de Pausa (ahora con el estilo del usuario) */
+    /* Estilo base del botón de pausa */
     .pause-button {
       position: fixed;
       bottom: 20px;
@@ -177,22 +253,36 @@
       transform: scale(1.05);
     }
 
-    .pause-button .pause-icon {
+    /* Ícono Pausa (dos barras) */
+    .pause-icon {
       display: flex;
       gap: 8px;
     }
-
-    .pause-button .pause-icon span {
+    .pause-icon span {
       display: block;
       width: 10px;
       height: 30px;
       background: white;
       border-radius: 3px;
     }
+    
+    /* Ícono Pausado (cuadrado) */
+    .paused-icon {
+        width: 28px;
+        height: 28px;
+        background: white;
+        border-radius: 4px;
+        display: none; /* Oculto por defecto */
+    }
 
+    /* Cuando el botón tiene la clase 'paused', oculta el ícono de pausa y muestra el de pausado */
     .pause-button.paused .pause-icon {
         display: none;
     }
+    .pause-button.paused .paused-icon {
+        display: block;
+    }
+
 
     /* Menú de Pausa */
     .pause-menu {
@@ -231,7 +321,7 @@
     .pause-menu .resume-btn { background-color: #28a745; color: white; }
     .pause-menu .restart-btn { background-color: #ffc107; color: black; }
     .pause-menu .skip-btn { background-color: #17a2b8; color: white; }
-    .pause-menu .back-to-menu-btn { background-color: #6c757d; color: white; }
+    .pause-menu .back-to-names-btn { background-color: #6c757d; color: white; }
 
 
     .pause-menu button:hover { transform: translateY(-3px); }
@@ -263,7 +353,6 @@
       font-weight: 900;
       padding: 12px 30px;
       border-radius: 8px;
-      font-size: 18px;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
       transition: background-color 0.5s ease;
     }
@@ -307,7 +396,7 @@
       align-items: center;
       position: relative;
       z-index: 1;
-      top: -10vh; /* Ajustado para que el problema esté más abajo */
+      top: 15vh;
     }
     
     .texto-centrado {
@@ -316,6 +405,7 @@
       color: white;
       text-shadow: 0 0 15px rgba(0,0,0,0.9);
       transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+      margin-bottom: 20px;
     }
     
     .timer-text {
@@ -324,7 +414,7 @@
       color: #fff;
       text-shadow: 0 0 10px rgba(0,0,0,0.8);
       transition: color 0.5s ease;
-      margin-top: -20px; /* Ajuste para que esté más cerca del problema */
+      margin-top: -20px;
     }
 
     .timer-text.danger {
@@ -343,7 +433,8 @@
       gap: 30px 50px;
       width: 80%;
       max-width: 1000px;
-      margin-top: 5vh; /* Se subió el margen para que los botones estén más arriba */
+      margin-top: 25vh;
+      padding-bottom: 10vh;
     }
     
     .boton {
@@ -535,107 +626,120 @@
             opacity: 0;
         }
     }
-  </style>
+</style>
 </head>
 <body>
 
-  <div class="screen start-screen" id="start-screen">
-    <div class="start-screen-content">
-        <h2>MathQuiz</h2>
-        <p>Juego por 903JT</p>
-        <div class="input-container">
-            <label for="player1-name">Nombre del Jugador 1</label>
-            <input type="text" id="player1-name" placeholder="Ej. Ana" maxlength="10">
-        </div>
-        <div class="input-container">
-            <label for="player2-name">Nombre del Jugador 2</label>
-            <input type="text" id="player2-name" placeholder="Ej. Luis" maxlength="10">
-        </div>
-        <button class="start-button" id="start-button"></button>
-    </div>
-  </div>
+<div id="pantalla-inicio" class="pantalla activa">
+  <img src="https://i.ibb.co/p67KxGdP/3b52ca2ceb93989-file-000000000bb061f9be408f54c6ae9e20-wm.png" class="titulo">
 
-  <div class="screen game-screen" id="game-screen">
-    <div class="dimmed-background" id="dimmed-background"></div>
-    <div class="screen-overlay" id="screen-overlay"></div>
-    <button class="pause-button" id="pause-button" onclick="togglePause()">
-      <div class="pause-icon">
-        <span></span>
-        <span></span>
-      </div>
-    </button>
-    <div class="pause-menu" id="pause-menu">
-      <h3>Juego Pausado</h3>
-      <button class="resume-btn" onclick="togglePause()">Despausar</button>
-      <button class="restart-btn" onclick="reiniciarPartida()">Reiniciar Partida</button>
-      <button class="skip-btn" onclick="avanzarNivel(true)">Pasar Problema</button>
-      <button class="back-to-menu-btn" onclick="volverAlMenu()">Volver al Menú</button>
-    </div>
-    
-    <div class="player-info player-1-info">
-      <img src="https://i.ibb.co/n8DMgr0x/1756936103333.png" alt="Icono Jugador 1">
-      <div>
-        <span id="player1-name-display">Jugador 1</span><br>
-        <span class="player-keys">(Click Izquierdo)</span><br>
-        Puntos: <span id="puntos-jugador-1">0</span>
-      </div>
-    </div>
-    
-    <div class="player-info player-2-info">
-      <div>
-        <span id="player2-name-display">Jugador 2</span><br>
-        <span class="player-keys">(Click Derecho)</span><br>
-        Puntos: <span id="puntos-jugador-2">0</span>
-      </div>
-      <img src="https://i.ibb.co/YT10gzmf/1756936120200.png" alt="Icono Jugador 2">
+  <img src="https://i.ibb.co/hFshhxvz/1756863435789.png" class="boton-jugarsolo">
+  <img src="https://i.ibb.co/wNbBgHW4/1756863483248.png" class="boton-jugarduo" onclick="mostrarJuegoDuoDirecto()">
+  <img src="https://i.ibb.co/rK0j3khc/1756863453185.png" class="boton-buscarpartida">
+  <img src="https://i.ibb.co/n8kkDWsd/1756863506377.png" class="boton-crearpartida">
+</div>
+
+<div id="pantalla-juego-duo" class="pantalla">
+    <div class="screen start-screen" id="start-screen">
+        <div class="back-to-menu-button" onclick="volverAlMenu()">
+            <img src="https://i.ibb.co/6cR0gtbQ/1756936433519.png" alt="Volver al menú principal">
+        </div>
+        <div class="start-screen-content">
+            <h2>MathQuiz</h2>
+            <p>Juego por 903JT</p>
+            <div class="input-container">
+                <label for="player1-name">Nombre del Jugador 1</label>
+                <input type="text" id="player1-name" placeholder="Ej. Ana" maxlength="10">
+            </div>
+            <div class="input-container">
+                <label for="player2-name">Nombre del Jugador 2</label>
+                <input type="text" id="player2-name" placeholder="Ej. Luis" maxlength="10">
+            </div>
+            <button class="start-button" id="start-button"></button>
+        </div>
     </div>
 
-    <div class="mathquiz-header">
-      <h1>MathQuiz de Matemáticas</h1>
-      <div class="nivel-box" id="nivel-box">Nivel: Fácil</div>
+    <div class="screen game-screen" id="game-screen">
+        <div class="dimmed-background" id="dimmed-background"></div>
+        <div class="screen-overlay" id="screen-overlay"></div>
+        <button class="pause-button" id="pause-button" onclick="togglePause()">
+            <div class="pause-icon">
+                <span></span>
+                <span></span>
+            </div>
+            <div class="paused-icon"></div>
+        </button>
+        <div class="pause-menu" id="pause-menu">
+            <h3>Juego Pausado</h3>
+            <button class="resume-btn" onclick="togglePause()">Despausar</button>
+            <button class="restart-btn" onclick="reiniciarPartida()">Reiniciar Partida</button>
+            <button class="skip-btn" onclick="avanzarNivel(true)">Pasar Problema</button>
+            <button class="back-to-names-btn" onclick="volverAPantallaNombres()">Salida</button>
+        </div>
+        
+        <div class="player-info player-1-info">
+            <img src="https://i.ibb.co/n8DMgr0x/1756936103333.png" alt="Icono Jugador 1">
+            <div>
+                <span id="player1-name-display">Jugador 1</span><br>
+                <span class="player-keys">(Click Izquierdo)</span><br>
+                Puntos: <span id="puntos-jugador-1">0</span>
+            </div>
+        </div>
+        
+        <div class="player-info player-2-info">
+            <div>
+                <span id="player2-name-display">Jugador 2</span><br>
+                <span class="player-keys">(Click Derecho)</span><br>
+                Puntos: <span id="puntos-jugador-2">0</span>
+            </div>
+            <img src="https://i.ibb.co/YT10gzmf/1756936120200.png" alt="Icono Jugador 2">
+        </div>
+
+        <div class="mathquiz-header">
+            <h1>MathQuiz</h1>
+            <div class="nivel-box" id="nivel-box">Nivel: Fácil</div>
+        </div>
+        
+        <div class="problem-container">
+            <p class="texto-centrado" id="problema-texto">10 + 5</p>
+            <p class="timer-text" id="timer-text">20</p>
+        </div>
+        
+        <div class="contenedor" id="opciones-contenedor">
+            <div class="boton" data-option="A">
+                <div class="letra">A</div>
+                <div class="texto" id="opcion-A">15</div>
+            </div>
+            <div class="boton" data-option="B">
+                <div class="letra">B</div>
+                <div class="texto" id="opcion-B">12</div>
+            </div>
+            <div class="boton" data-option="C">
+                <div class="letra">C</div>
+                <div class="texto" id="opcion-C">20</div>
+            </div>
+            <div class="boton" data-option="D">
+                <div class="letra">D</div>
+                <div class="texto" id="opcion-D">8</div>
+            </div>
+        </div>
+        
+        <div class="footer-info">
+            <span>Un juego por 903 JT &copy;</span>
+            <span>Programado por JulianR</span>
+        </div>
     </div>
     
-    <div class="problem-container">
-      <p class="texto-centrado" id="problema-texto">10 + 5</p>
-      <p class="timer-text" id="timer-text">20</p>
+    <div class="screen pantalla-final" id="pantalla-final">
+        <h2>¡Juego Terminado!</h2>
+        <div class="winner-info" id="winner-info">
+            <span class="name" id="winner-name"></span>
+            <img id="winner-icon" src="" alt="Ganador">
+            <span class="score">Puntos: <span id="winner-score"></span></span>
+        </div>
+        <button onclick="reiniciarJuego()">Volver a Jugar</button>
     </div>
-    
-    <div class="contenedor" id="opciones-contenedor">
-      <div class="boton" data-option="A">
-        <div class="letra">A</div>
-        <div class="texto" id="opcion-A">15</div>
-      </div>
-      <div class="boton" data-option="B">
-        <div class="letra">B</div>
-        <div class="texto" id="opcion-B">12</div>
-      </div>
-      <div class="boton" data-option="C">
-        <div class="letra">C</div>
-        <div class="texto" id="opcion-C">20</div>
-      </div>
-      <div class="boton" data-option="D">
-        <div class="letra">D</div>
-        <div class="texto" id="opcion-D">8</div>
-      </div>
-    </div>
-    
-    <div class="footer-info">
-      <span>Un juego por 903 JT &copy;</span>
-      <span>Programado por JulianR</span>
-    </div>
-  </div>
-  
-  <div class="screen pantalla-final" id="pantalla-final">
-    <h2>¡Juego Terminado!</h2>
-    <div class="winner-info" id="winner-info">
-        <span class="name" id="winner-name"></span>
-        <img id="winner-icon" src="" alt="Ganador">
-        <span class="score">Puntos: <span id="winner-score"></span></span>
-    </div>
-    <button onclick="reiniciarJuego()">Volver a Jugar</button>
-  </div>
-  
-  <audio id="start-music" src="https://s3.amazonaws.com/chibcha-s3/sound/happy-uplifting-piano-5867.mp3" loop preload="auto"></audio>
+</div> <audio id="start-music" src="https://s3.amazonaws.com/chibcha-s3/sound/happy-uplifting-piano-5867.mp3" loop preload="auto"></audio>
   <audio id="game-music" src="https://b.sndcdn.com/f/a/QoHk-k41v70W_m.128.mp3?hash_token=1719541200_1719541200_1550133203" loop preload="auto"></audio>
   <audio id="correct-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/correct.mp3" preload="auto"></audio>
   <audio id="wrong-sound" src="https://s3.amazonaws.com/chibcha-s3/sound/beep-06.mp3" preload="auto"></audio>
@@ -658,8 +762,10 @@
     const totalNiveles = 10;
     const tiempoPorNivel = 20;
 
-    const startScreen = document.getElementById('start-screen');
-    const gameScreen = document.getElementById('game-screen');
+    const pantallaInicioMenu = document.getElementById('pantalla-inicio'); // Nuevo: referencia al menú principal
+    const pantallaJuegoDuo = document.getElementById('pantalla-juego-duo'); // Nuevo: Contenedor para todo el juego dúo
+    const startScreen = document.getElementById('start-screen'); // Pantalla de ingreso de nombres
+    const gameScreen = document.getElementById('game-screen');     // Pantalla de juego activo
     const pantallaFinal = document.getElementById('pantalla-final');
     const startButton = document.getElementById('start-button');
     const player1NameInput = document.getElementById('player1-name');
@@ -742,6 +848,15 @@
         doFade();
     }
     
+    // Función para mostrar directamente la pantalla de ingreso de nombres
+    function mostrarJuegoDuoDirecto() {
+        pantallaInicioMenu.classList.remove("activa");
+        pantallaJuegoDuo.classList.add("activa"); // Activar el contenedor principal del juego duo
+        startScreen.style.display = 'flex'; // Asegurarse de que la pantalla de nombres esté visible
+        gameScreen.style.display = 'none'; // Asegurarse de que la pantalla del juego esté oculta
+        pantallaFinal.style.display = 'none'; // Asegurarse de que la pantalla final esté oculta
+    }
+
     function iniciarJuego() {
       const nombre1 = player1NameInput.value.trim();
       const nombre2 = player2NameInput.value.trim();
@@ -772,12 +887,36 @@
         if (juegoPausado) {
             togglePause();
         }
+        // Ocultar todas las pantallas del juego dúo
+        pantallaJuegoDuo.classList.remove("activa");
+        startScreen.style.display = 'none';
         gameScreen.style.display = 'none';
         pantallaFinal.style.display = 'none';
-        startScreen.style.display = 'flex';
+
+        // Mostrar la pantalla de inicio del menú principal
+        pantallaInicioMenu.classList.add("activa");
         
         player1NameInput.value = '';
         player2NameInput.value = '';
+        clearTimeout(timer);
+        gameMusic.pause();
+        startMusic.currentTime = 0;
+        startMusic.volume = 0.5;
+        startMusic.play();
+        juegoPausado = false; 
+        pauseMenu.style.display = 'none';
+        dimmedBackground.style.display = 'none';
+        problemasAnteriores = [];
+    }
+
+    function volverAPantallaNombres() {
+        if (juegoPausado) {
+            togglePause();
+        }
+        gameScreen.style.display = 'none';
+        pantallaFinal.style.display = 'none'; // Asegurarse de ocultar la pantalla final también
+        startScreen.style.display = 'flex'; // Mostrar la pantalla de ingreso de nombres
+        
         clearTimeout(timer);
         gameMusic.pause();
         startMusic.currentTime = 0;
@@ -1006,7 +1145,7 @@
     function reiniciarJuego() {
       gameScreen.style.display = 'none';
       pantallaFinal.style.display = 'none';
-      startScreen.style.display = 'flex';
+      startScreen.style.display = 'flex'; // Volver a la pantalla de nombres para "Jugar de Nuevo"
       
       player1NameInput.value = '';
       player2NameInput.value = '';
@@ -1077,11 +1216,13 @@
             pauseMenu.style.display = 'flex';
             fadeAudio(gameMusic, 0.1, 500);
             clearTimeout(timer);
+            pauseButton.classList.add('paused');
         } else {
             dimmedBackground.style.display = 'none';
             pauseMenu.style.display = 'none';
             fadeAudio(gameMusic, 0.5, 500);
             iniciarTiempo();
+            pauseButton.classList.remove('paused');
         }
     }
 
